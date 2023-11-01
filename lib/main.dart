@@ -7,6 +7,8 @@ import 'package:untitled10/view_model/add_post/states.dart';
 import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import 'package:untitled10/view_model/auth_cubit/states.dart';
 import 'package:untitled10/view_model/bloc-observer.dart';
+import 'package:untitled10/view_model/chats/chats_cubit.dart';
+import 'package:untitled10/view_model/chats/states.dart';
 import 'package:untitled10/view_model/home-cubit/cubit.dart';
 import 'package:untitled10/view_model/home-cubit/states.dart';
 import 'package:untitled10/view_model/profile/cubit.dart';
@@ -50,6 +52,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => UpdateProfileCubit(UpdateProfileInitialState()),
         ),
+        BlocProvider(
+          create: (context) => ChatsCubit(ChatsInitialState()),
+        ),
       ],
           child: BlocBuilder<ProfileCubit,ProfileStates>(
             builder: (context, state)
@@ -63,9 +68,6 @@ class MyApp extends StatelessWidget {
                     ThemeData.dark(),
                     debugShowCheckedModeBanner: false,
                     home: const Login(),
-                    // home: SharedPrefs.sharedPreferences.getBool('isLogin') == false?
-                    // const Login() :
-                    // const BottomNavBar(),
                   );
                 },
               );
@@ -74,12 +76,5 @@ class MyApp extends StatelessWidget {
       );
   }
 }
-// BottomNavBar(
-//           email: 'mohamed12@gmail.com',
-//           phone: '52666624',
-//           name: 'mohamed',
-//           profileImage: '',
-//           uId: '7AlT8SlGU3cYa27GGZyTR14MxgQ2',
-//         ),
 
 

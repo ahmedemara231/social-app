@@ -33,4 +33,24 @@
 //   }
 // }
 
+import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
+import 'package:untitled10/modules/myText.dart';
+
+class Test extends StatelessWidget {
+  const Test({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(child: ElevatedButton(
+        onPressed: ()
+        {
+          print(Jiffy.now().yMMMdjm);
+        },
+        child: MyText(text: 'show time'),
+      ),),
+    );
+  }
+}
 
