@@ -1,0 +1,379 @@
+import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:untitled10/models/home_models.dart';
+import 'package:untitled10/modules/snackBar.dart';
+import 'package:untitled10/view_model/home-cubit/states.dart';
+
+class HomeCubit extends Cubit<HomeStates>
+{
+  HomeCubit(super.initialState);
+
+  static HomeCubit getInstance(context) => BlocProvider.of(context);
+
+  int currentIndex = 0;
+  void changeCurrentIndex({
+    required int newIndex,
+})
+  {
+    currentIndex = newIndex;
+    emit(ChangeCurrentIndexState());
+  }
+
+  List<Map<String,dynamic>> posts = [];
+
+  bool postsLoading = false;
+  Future<void> getAllPosts()async
+  {
+    postsLoading = true;
+    emit(HomeLoadingState());
+
+    posts = [];
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .get()
+        .then((value) async
+    {
+      value.docs.forEach((element) {
+        posts.add(element.data());
+      });
+      postsLoading = false;
+      await getPostsId().then((value)
+      {
+        emit(GetPostsSuccessState());
+      });
+    });
+  }
+
+  List<String> postsId = [];
+  Future<void> getPostsId()async
+  {
+    postsId = [];
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        postsId.add(element.id);
+      });
+      emit(GetPostsIdSuccessState());
+    }).catchError((error)
+    {
+      emit(GetPostsIdErrorState());
+    });
+  }
+
+  bool writeCommentsLoading = false;
+  Future<void> writeComment({
+    required CommentModel commentModel,
+})async
+  {
+    emit(WriteCommentLoadingState());
+    writeCommentsLoading = true;
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsId[commentModel.index])
+        .collection('comments')
+        .add(
+        {
+          'comment' : commentModel.comment,
+          'time' : commentModel.time,
+          'name' : commentModel.name,
+          'uId' : commentModel.uId,
+          'userProfileImage' : commentModel.profileImage,
+        },
+    ).then((value)
+    {
+      emit(WriteCommentSuccessState());
+      writeCommentsLoading = false;
+    }).catchError((error)
+    {
+      emit(WriteCommentErrorState());
+      log(error.toString());
+    });
+  }
+
+  List<Map<String,dynamic>?> allComments = [];
+  bool getCommentsLoading = false;
+  Future<void> getAllComments({
+    required int index,
+})async
+  {
+    allComments = [];
+    getCommentsLoading = true;
+    emit(GetAllCommentsLoadingState());
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsId[index])
+        .collection('comments')
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        allComments.add(element.data());
+      });
+      emit(GetAllCommentsSuccessState());
+      getCommentsLoading = false;
+    }).catchError((error)
+    {
+      emit(GetAllCommentsErrorState());
+      log(error.toString());
+    });
+  }
+
+  List<String> postCommentsIds = [];
+  Future<void> getPostCommentsIds({
+    required int index,
+})async
+  {
+    postCommentsIds = [];
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsId[index])
+        .collection('comments')
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        postCommentsIds.add(element.id);
+      });
+      log('$postCommentsIds');
+      emit(GetCommentsIdsSuccessState());
+    }).catchError((error)
+    {
+      emit(GetCommentsIdsErrorState());
+    });
+  }
+
+  late int postIndex;
+  Future<void> deleteComment({
+    required int commentIndex,
+    required context,
+})async
+  {
+    log('$postIndex , $commentIndex');
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsId[postIndex])
+        .collection('comments')
+        .doc(postCommentsIds[commentIndex])
+        .delete()
+        .then((value)
+    {
+      log('deleted');
+      allComments.remove(allComments[commentIndex]);
+      postCommentsIds.remove(postCommentsIds[commentIndex]);
+      emit(DeleteCommentSuccessState());
+      MySnackBar.showSnackBar(context: context, message: 'Deleted');
+    }).catchError((error)
+    {
+      emit(DeleteCommentErrorState());
+    });
+  }
+
+  // void setState()
+  // {
+  //   emit(EditCommentLoadingState());
+  // }
+  // Future<void> editComment({
+  //   required String newComment,
+  //   required int commentIndex,
+  // })async
+  // {
+  //   await FirebaseFirestore.instance
+  //       .collection('posts')
+  //       .doc(postsId[postIndex])
+  //       .collection('comments')
+  //       .doc(postCommentsIds[commentIndex])
+  //       .update(
+  //       {
+  //         'comment' : newComment,
+  //       },
+  //   ).then((value)
+  //   {
+  //     emit(EditCommentSuccessState());
+  //   }).catchError((error)
+  //   {
+  //     emit(EditCommentErrorState());
+  //   });
+  // }
+
+  Future<void> savePost({
+    required SavePostModel savePostModel,
+    required context,
+})async
+  {
+    await FirebaseFirestore.instance
+        .collection('user')
+        .doc(savePostModel.uId)
+        .collection('savedPosts')
+        .doc(postsId[savePostModel.index])
+        .set(
+      {
+       'text' : savePostModel.text,
+       'time' : savePostModel.time,
+       'userName' : savePostModel.userName,
+       'profileImage' : savePostModel.profileImage??'',
+       'photo' : savePostModel.photo?? '',
+     },
+   ).then((value)
+    {
+      emit(SavePostSuccessState());
+      MySnackBar.showSnackBar(
+          context: context,
+          message: 'Saved',
+          color: Colors.green
+      );
+    }).catchError((error)
+    {
+      emit(SavePostErrorState());
+    });
+  }
+
+  Future<void> deletePost({
+    required context,
+    required int index,
+    required String uId,
+})async
+  {
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsId[index])
+        .delete()
+        .then((value)
+    {
+      posts.remove(posts[index]);
+      postsId.remove(postsId[index]);
+
+
+      // هنا كنت عايز اما امسح بوست انا منزله يتمسح لو حد عمله save لكن لم تنجح
+      FirebaseFirestore.instance
+      .collection('user')
+      .doc(uId)
+      .collection('savedPosts')
+      .get()
+      .then((value)
+      {
+        value.docs.forEach((element) {
+          if(element.id == postsId[index])
+            {
+              log(element.id);
+              element.reference.update({'text' : 'ahmed emara'});
+            }
+        });
+        emit(DeletePostSuccessState());
+      }).catchError((error)
+      {
+        emit(DeletePostErrorState());
+      });
+
+      MySnackBar.showSnackBar(context: context, message: 'Deleted');
+    });
+  }
+
+  List<String> postLikes = [];
+  Future<void> getAllLikesForPost({
+    required int index,
+  })async
+  {
+    postLikes = [];
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsId[index])
+        .collection('likes')
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        postLikes.add(element.id);
+      });
+      emit(GetLikeSForPost());
+    });
+  }
+
+  Future<void> like({
+    required String uId,
+    required int index,
+})async
+  {
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsId[index])
+        .collection('likes')
+        .doc(uId)
+        .set(
+        {
+          'uId' : uId,
+          'isLike' : true,
+        },
+    ).then((value)
+    {
+      emit(LikeSuccessState());
+    }).catchError((error)
+    {
+      emit(LikeErrorState());
+    });
+  }
+
+  Future<void> disLike({
+    required int index,
+    required String uId,
+})async
+  {
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsId[index])
+        .collection('likes')
+        .doc(uId)
+        .delete()
+        .then((value)
+    {
+      emit(DisLikeSuccessState());
+      log('disLike');
+    }).catchError((error)
+    {
+      emit(DisLikeErrorState());
+    });
+  }
+
+  void detectUserLike({
+    required String uId,
+    required int index,
+  })
+  {
+    postLikes.forEach((element)async {
+      if(element == uId)
+      {
+        await disLike(index: index, uId: uId);
+      }
+      else{
+        await like(uId: uId, index: index);
+      }
+    });
+  }
+
+//   List<Map<String,dynamic>> allLikesInPosts = [];
+//   void test({
+//     required int index,
+//     required String uId,
+// })async
+//   {
+//     await FirebaseFirestore.instance
+//         .collection('posts')
+//         .doc(postsId[index])
+//         .collection('likes')
+//         .get()
+//         .then((value)
+//     {
+//       value.docs.forEach((element) {
+//         allLikesInPosts.add(element.data());
+//       });
+//       if(uId == allLikesInPosts[index]['uId'])
+//     },
+//     );
+//
+//   }
+
+}
