@@ -17,3 +17,9 @@ class GetUsersErrorState extends ChatsStates {
 class SendMessageSuccessState extends ChatsStates{}
 
 class SendMessageErrorState extends ChatsStates{}
+
+class FilterUsersLoadingState extends ChatsStates{}
+
+class FilterUsersSuccessState extends ChatsStates{}
+
+// class FilterUsersErrorState extends ChatsStates{}

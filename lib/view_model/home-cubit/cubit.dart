@@ -173,6 +173,7 @@ class HomeCubit extends Cubit<HomeStates>
     });
   }
 
+  // update comment
   // void setState()
   // {
   //   emit(EditCommentLoadingState());
@@ -207,16 +208,17 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('user')
-        .doc(savePostModel.uId)
+        .doc(savePostModel.id)
         .collection('savedPosts')
         .doc(postsId[savePostModel.index])
         .set(
       {
-       'text' : savePostModel.text,
-       'time' : savePostModel.time,
-       'userName' : savePostModel.userName,
-       'profileImage' : savePostModel.profileImage??'',
-       'photo' : savePostModel.photo?? '',
+        'postId' : postsId[savePostModel.index],
+        'text' : savePostModel.text,
+        'time' : savePostModel.time,
+        'userName' : savePostModel.userName,
+        'profileImage' : savePostModel.profileImage?? '',
+        'photo' : savePostModel.photo?? '',
      },
    ).then((value)
     {
@@ -232,6 +234,8 @@ class HomeCubit extends Cubit<HomeStates>
     });
   }
 
+  List<String> usersIds = [];
+
   Future<void> deletePost({
     required context,
     required int index,
@@ -244,32 +248,69 @@ class HomeCubit extends Cubit<HomeStates>
         .delete()
         .then((value)
     {
-      posts.remove(posts[index]);
-      postsId.remove(postsId[index]);
-
-
-      // هنا كنت عايز اما امسح بوست انا منزله يتمسح لو حد عمله save لكن لم تنجح
+      usersIds = [];
       FirebaseFirestore.instance
       .collection('user')
-      .doc(uId)
-      .collection('savedPosts')
       .get()
-      .then((value)
+      .then((value) 
       {
-        value.docs.forEach((element) {
-          if(element.id == postsId[index])
-            {
-              log(element.id);
-              element.reference.update({'text' : 'ahmed emara'});
-            }
+        value.docs.forEach((element) { 
+          usersIds.add(element.id);
         });
-        emit(DeletePostSuccessState());
-      }).catchError((error)
-      {
-        emit(DeletePostErrorState());
+
+        for(int i = 0; i < usersIds.length ; i++)
+        {
+          log('loop');
+          FirebaseFirestore.instance
+              .collection('user')
+              .doc(usersIds[i])
+              .collection('savedPosts')
+              .where('postId',isEqualTo: postsId[index])
+              .get()
+              .then((value)
+          {
+            value.docs.forEach((element) {
+              element.reference.delete().then((value) {
+
+                posts.remove(posts[index]);
+                postsId.remove(postsId[index]);
+
+                emit(DeletePostSuccessState());
+              });
+            });
+          }).catchError((error)
+          {
+            emit(DeletePostErrorState());
+          });
+        }
       });
 
+      
+      // هنا كنت عايز اما امسح بوست انا منزله يتمسح لو حد عمله save لكن لم تنجح
+      // FirebaseFirestore.instance
+      // .collection('user')
+      // .doc(uId)
+      // .collection('savedPosts')
+      // .get()
+      // .then((value)
+      // {
+      //   value.docs.forEach((element) {
+      //     if(element.id == postsId[index])
+      //       {
+      //         log(element.id);
+      //         element.reference.update({'text' : 'ahmed emara'});
+      //       }
+      //   });
+      //   emit(DeletePostSuccessState());
+      // }).catchError((error)
+      // {
+      //   emit(DeletePostErrorState());
+      // });
+
       MySnackBar.showSnackBar(context: context, message: 'Deleted');
+    }).catchError((error)
+    {
+      emit(DeletePostErrorState());
     });
   }
 

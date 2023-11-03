@@ -14,6 +14,7 @@ class TFF extends StatelessWidget {
   TextEditingController controller;
   void Function(String)? onChanged;
   void Function()? onPressed;
+  void Function(String)? onFieldSubmitted;
 
   TFF({super.key,
     required this.obscureText,
@@ -27,6 +28,7 @@ class TFF extends StatelessWidget {
     this.suffixIcon,
     this.onPressed,
     this.onChanged,
+    this.onFieldSubmitted,
     this.border,
     this.enabledBorder,
    });
@@ -44,6 +46,7 @@ class TFF extends StatelessWidget {
           }
       },
       onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
       style: const TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w500

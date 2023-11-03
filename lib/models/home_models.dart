@@ -19,7 +19,7 @@ class CommentModel
 
 class SavePostModel
 {
-  String uId;
+  String id;
   String text;
   String time;
   String? photo;
@@ -28,7 +28,7 @@ class SavePostModel
   int index;
 
   SavePostModel({
-    required this.uId,
+    required this.id,
     required this.text,
     this.photo,
     required this.time,

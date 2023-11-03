@@ -21,20 +21,14 @@ class SharedPrefs
 
   static Future<void> saveLoginState(bool value) async
   {
-     sharedPreferences.setBool('isLogin', value).then((value)
-    {
-      if(value == true)
-        {
-          log('logged in');
-        }
-      else{
-        return;
-      }
-    });
+     await sharedPreferences.setBool('isLogin', value);
   }
 
-  static Future<void> saveUserDataWhenLogin(List<String> userData)async
+  static Future<void> saveUserDataWhenLogin(Map<String,String> userData)async
   {
-    await sharedPreferences.setStringList('userData', userData);
+    await sharedPreferences.setString('userId', (userData['uId'] as String));
+    await sharedPreferences.setString('userName', (userData['name'] as String));
+    await sharedPreferences.setString('userEmail', (userData['email'] as String));
+    await sharedPreferences.setString('userPhone', (userData['phone'] as String));
   }
 }

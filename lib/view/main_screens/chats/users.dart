@@ -32,11 +32,33 @@ class _UsersState extends State<Users> {
           appBar: AppBar(
             title: MyText(text: 'Users'),
           ),
-          body: state is GetUsersSuccessState ?
+          body: state is GetUsersLoadingState ?
+          const Center(child: CircularProgressIndicator(),):
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
+                TextFormField(
+                  style: const TextStyle(
+                    fontSize: 18,
+                  ),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'search',
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30)
+                    ),
+                  ),
+                  onChanged: (pattern)
+                  {
+                    ChatsCubit.getInstance(context).filterUsers(
+                      pattern: pattern,
+                    );
+                  },
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
                 Expanded(
                   child: ListView.separated(
                       itemBuilder: (context, index) => InkWell(
@@ -46,8 +68,8 @@ class _UsersState extends State<Users> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Chat(
-                                  name: ChatsCubit.getInstance(context).users[index]['name'],
-                                  profileImageUrl: ChatsCubit.getInstance(context).users[index]['profileImage'],
+                                  name: ChatsCubit.getInstance(context).filteredUserNameList[index]['name'],
+                                  profileImageUrl: ChatsCubit.getInstance(context).filteredUserNameList[index]['profileImage'],
                                   otherUserUId: ChatsCubit.getInstance(context).otherUserUId[index],
                                 ),
                               ),
@@ -59,12 +81,12 @@ class _UsersState extends State<Users> {
                             child: ListTile(
                               leading: CircleAvatar(
                                 radius: 30,
-                                backgroundImage: ChatsCubit.getInstance(context).users[index]['profileImage'] == ''?
+                                backgroundImage: ChatsCubit.getInstance(context).filteredUserNameList[index]['profileImage'] == ''?
                                 const NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTs4XdD00sHtFKBYeyzKvz1CUHr598N0yrUA&usqp=CAU') :
-                                NetworkImage(ChatsCubit.getInstance(context).users[index]['profileImage']),
+                                NetworkImage(ChatsCubit.getInstance(context).filteredUserNameList[index]['profileImage']),
                               ),
                               title: MyText(
-                                text: ChatsCubit.getInstance(context).users[index]['name'],
+                                text: ChatsCubit.getInstance(context).filteredUserNameList[index]['name'],
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -76,13 +98,13 @@ class _UsersState extends State<Users> {
                       separatorBuilder: (context, index) => const SizedBox(
                         height: 16,
                       ),
-                      itemCount: ChatsCubit.getInstance(context).users.length
+                      itemCount: ChatsCubit.getInstance(context).filteredUserNameList.length
                   ),
                 ),
               ],
             ),
-          ) :
-          const Center(child: CircularProgressIndicator(),)
+          ),
+
         );
       },
     );

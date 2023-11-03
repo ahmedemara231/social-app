@@ -13,6 +13,10 @@ class ChatsCubit extends Cubit<ChatsStates>
 
   List<Map<String,dynamic>> users = [];
   List<String> otherUserUId = [];
+
+  List<Map<String,dynamic>> filteredUserNameList = [];
+  // List<Map<String,dynamic>> filteredUserIdsList = [];
+
   Future<void> getUsers({
     required String uId,
 })async
@@ -32,7 +36,9 @@ class ChatsCubit extends Cubit<ChatsStates>
            }
          else{
            users.add(element.data());
+           filteredUserNameList = List.from(users);
            otherUserUId.add(element.id);
+           // filteredUserIdsList = List.from(otherUserUId);
          }
        });
        emit(GetUsersSuccessState());
@@ -44,6 +50,19 @@ class ChatsCubit extends Cubit<ChatsStates>
     });
   }
 
+  void filterUsers({
+    required String pattern,
+})
+  {
+    emit(FilterUsersLoadingState());
+
+    filteredUserNameList = users.where((element) => element['name']
+        .toString()
+        .contains(pattern))
+        .toList();
+
+    emit(FilterUsersSuccessState());
+  }
   // List<Map<String,dynamic>> messages = [];
   Future<void> sendMessage({
     required Message message,

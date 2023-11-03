@@ -103,14 +103,13 @@ class AuthCubit extends Cubit<AuthStates>
           password: userLoginModel.password,
       ).then((value)
       {
-        emit(LoginSuccessState());
+
         FirebaseFirestore.instance
         .collection('user')
         .doc(value.user?.uid)
         .get()
-        .then((value)
+        .then((value) async
         {
-
           userModel = UserModel(
               name: value.data()?['name'],
               email: value.data()?['email'],
@@ -120,6 +119,8 @@ class AuthCubit extends Cubit<AuthStates>
               coverImage: value.data()?['coverImage'],
               uId: value.id,
           );
+          emit(LoginSuccessState());
+          await changeLoginState(true);
 
           Navigator.pushAndRemoveUntil(
               context,
@@ -127,23 +128,6 @@ class AuthCubit extends Cubit<AuthStates>
                 builder: (context) => const BottomNavBar(),
               ), (route) => false,
           );
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => BottomNavBar(
-          //       name: value.data()?['name'],
-          //       email: value.data()?['email'],
-          //       phone: value.data()?['phone'],
-          //       profileImage: value.data()?['profileImage'] == '' ?
-          //       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTs4XdD00sHtFKBYeyzKvz1CUHr598N0yrUA&usqp=CAU' :
-          //       value.data()?['profileImage'],
-          //       coverImage: value.data()?['coverImage'] == '' ?
-          //       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDBJ_hQ-aH41e7-2UWaMNnWAhNa2tkNT1fhQ&usqp=CAU':
-          //       value.data()?['coverImage'],
-          //       uId: value.id,
-          //     ),
-          //   ),
-          //  );
         });
       });
 
@@ -182,6 +166,29 @@ class AuthCubit extends Cubit<AuthStates>
         }
       emit(LoginErrorState());
     }
+  }
+
+  Future<void> changeLoginState(bool isLogin)async
+  {
+    await SharedPrefs.saveLoginState(isLogin).then((value)
+    {
+      if(isLogin)
+        {
+          SharedPrefs.saveUserDataWhenLogin(
+              {
+                'uId' : userModel!.uId,
+                'name' : userModel!.name,
+                'email' : userModel!.email,
+                'phone' : userModel!.phone,
+              }).then((value)
+          {
+            emit(SaveLoginState());
+          });
+        }
+      else{
+        SharedPrefs.saveUserDataWhenLogin({});
+      }
+    });
   }
 
   Future<void> resetPassword({
@@ -224,28 +231,6 @@ class AuthCubit extends Cubit<AuthStates>
     userModel?.phone = updateUserDataModel.phone;
     userModel?.bio = updateUserDataModel.bio;
     emit(EditUserDataSuccessState());
-  }
-
-  Future<void> changeLoginState(bool isLogin)async
-  {
-    await SharedPrefs.saveLoginState(isLogin).then((value)
-    {
-      if(isLogin == true)
-        {
-          SharedPrefs.saveUserDataWhenLogin(
-              [
-                userModel!.uId,
-                userModel!.name,
-                userModel!.email,
-                userModel!.phone,
-              ],
-          );
-        }
-      else{
-        SharedPrefs.saveUserDataWhenLogin([]);
-      }
-      emit(SaveLoginState());
-    });
   }
 
 }
