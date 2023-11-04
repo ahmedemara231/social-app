@@ -97,14 +97,23 @@ class AddPost extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection('user').doc(AuthCubit.getInstance(context).userModel?.uId).snapshots(),
+                    FutureBuilder(
+                      future: AddPostCubit.getInstance(context).getUserProfileImage(
+                        context: context,
+                        uId: AuthCubit.getInstance(context).userModel!.uId,
+                      ),
                       builder: (context, snapshot)
                       {
-                        return CircleAvatar(
-                          radius: 25,
-                          backgroundImage: NetworkImage(snapshot.data?.data()?['profileImage']),
-                        );
+                        if(snapshot.hasData)
+                        {
+                          return CircleAvatar(
+                            radius: 25,
+                            backgroundImage: NetworkImage(snapshot.requireData),
+                          );
+                        }
+                        else{
+                          return MyText(text: '...');
+                        }
                       },
                     ),
                     Expanded(

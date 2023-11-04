@@ -126,7 +126,7 @@ class Chat extends StatelessWidget {
                           );
                         }
                       else{
-                        return MyText(text: '...');
+                        return const Center(child: CircularProgressIndicator(),);
                       }
                     },
                   ),
@@ -168,7 +168,7 @@ class Chat extends StatelessWidget {
                         icon: const Icon(Icons.send),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

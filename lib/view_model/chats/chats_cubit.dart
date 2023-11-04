@@ -12,10 +12,12 @@ class ChatsCubit extends Cubit<ChatsStates>
   static ChatsCubit getInstance(context) => BlocProvider.of(context);
 
   List<Map<String,dynamic>> users = [];
-  List<String> otherUserUId = [];
-
   List<Map<String,dynamic>> filteredUserNameList = [];
-  // List<Map<String,dynamic>> filteredUserIdsList = [];
+
+  // List<String> otherUserUId = [];
+  // List<String> filterOtherUserIds = [];
+
+
 
   Future<void> getUsers({
     required String uId,
@@ -37,7 +39,7 @@ class ChatsCubit extends Cubit<ChatsStates>
          else{
            users.add(element.data());
            filteredUserNameList = List.from(users);
-           otherUserUId.add(element.id);
+           // otherUserUId.add(element.id);
            // filteredUserIdsList = List.from(otherUserUId);
          }
        });
@@ -60,10 +62,11 @@ class ChatsCubit extends Cubit<ChatsStates>
         .toString()
         .contains(pattern))
         .toList();
-
+    // انا لازم اعمل ليستة واحدة فيها كل الداتا بتاعة اليوزرز بال id بتاعهم عشان اعرف اعمل filterr لكله مع بعضه
+    // filterOtherUserIds = otherUserUId.where((element) => element.)
     emit(FilterUsersSuccessState());
   }
-  // List<Map<String,dynamic>> messages = [];
+
   Future<void> sendMessage({
     required Message message,
 })async

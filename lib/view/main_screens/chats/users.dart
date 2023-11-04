@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:untitled10/modules/myText.dart';
@@ -54,6 +56,7 @@ class _UsersState extends State<Users> {
                     ChatsCubit.getInstance(context).filterUsers(
                       pattern: pattern,
                     );
+                    log('${ChatsCubit.getInstance(context).filteredUserNameList}');
                   },
                 ),
                 const SizedBox(
@@ -70,7 +73,7 @@ class _UsersState extends State<Users> {
                                 builder: (context) => Chat(
                                   name: ChatsCubit.getInstance(context).filteredUserNameList[index]['name'],
                                   profileImageUrl: ChatsCubit.getInstance(context).filteredUserNameList[index]['profileImage'],
-                                  otherUserUId: ChatsCubit.getInstance(context).otherUserUId[index],
+                                  otherUserUId: ChatsCubit.getInstance(context).filteredUserNameList[index]['uId'],
                                 ),
                               ),
                           );

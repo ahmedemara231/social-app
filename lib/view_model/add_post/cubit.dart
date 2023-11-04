@@ -6,11 +6,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:untitled10/modules/snackBar.dart';
 import 'package:untitled10/view_model/add_post/states.dart';
+import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import '../../models/addPost_model.dart';
 
 class AddPostCubit extends Cubit<AddPostStates> {
   AddPostCubit(super.initialState);
   static AddPostCubit getInstance(context) => BlocProvider.of(context);
+
+  late String profileImageUrl;
+  Future<String> getUserProfileImage({
+    required context,
+    required String uId,
+})async
+  {
+     return await FirebaseFirestore.instance
+         .collection('user')
+         .doc(uId)
+         .get()
+         .then((value)
+     {
+       profileImageUrl = value.data()?['profileImage'];
+       return profileImageUrl;
+     });
+  }
 
   Future<void> addPostWithoutPhoto({
     required AddPostModel addPostModel,
@@ -54,7 +72,6 @@ class AddPostCubit extends Cubit<AddPostStates> {
       emit(AddPostWithoutPhotoErrorState());
     });
   }
-
 
   final ImagePicker picker = ImagePicker();
    XFile? image;

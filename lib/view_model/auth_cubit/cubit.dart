@@ -38,6 +38,7 @@ class AuthCubit extends Cubit<AuthStates>
         {
           'name' : userRegisterModel.name,
           'email' : userRegisterModel.email,
+          'uId' : value.user?.uid,
           'phone' : userRegisterModel.phone,
           'bio' : '',
           'profileImage' : '',
