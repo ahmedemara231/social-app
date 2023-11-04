@@ -165,10 +165,6 @@ class _HomeState extends State<Home> {
                                     },
                                     child: MyText(
                                       text: 'Save Post',
-                                      // text: HomeCubit.getInstance(context).postsId[index] ==
-                                      //     ProfileCubit.getInstance(context).savedPostsIds[index] ?
-                                      //     'Delete form saves' :
-                                      // 'save post',
                                       fontSize: 16,
                                     ),
                                   ),
@@ -190,11 +186,14 @@ class _HomeState extends State<Home> {
                                 ],
                               ),
                             ),
-                            MyText(
-                              text: HomeCubit.getInstance(context)
-                                  .posts[index]['text'],
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: MyText(
+                                text: HomeCubit.getInstance(context)
+                                    .posts[index]['text'],
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                             const SizedBox(
                               height: 12,
@@ -216,7 +215,7 @@ class _HomeState extends State<Home> {
                                   InkWell(
                                     onTap: () {},
                                     child: StreamBuilder(
-                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).postsId[index]).collection('likes').snapshots(),
+                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).posts[index]['id']).collection('likes').snapshots(),
                                       builder: (context, snapshot)
                                       {
                                         if(snapshot.hasData)
@@ -338,13 +337,12 @@ class _HomeState extends State<Home> {
                                       });
                                     },
                                     child: StreamBuilder(
-                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).postsId[index]).collection('comments').snapshots(),
+                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).posts[index]['id']).collection('comments').snapshots(),
                                       builder: (context, snapshot)
                                       {
                                         if(snapshot.hasData)
                                         {
                                           return MyText(
-                                            // text: 'ahmed',
                                             text: '${snapshot.data?.docs.length} comments',
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,

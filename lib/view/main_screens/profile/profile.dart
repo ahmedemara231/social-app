@@ -8,6 +8,7 @@ import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import 'package:untitled10/view_model/auth_cubit/states.dart';
 import 'package:untitled10/view_model/profile/cubit.dart';
 import 'package:untitled10/view_model/profile/states.dart';
+import 'package:untitled10/view_model/sharedPrefs/sharedPrefs.dart';
 import '../../../modules/myText.dart';
 
 class Profile extends StatefulWidget {
@@ -22,7 +23,6 @@ class _ProfileState extends State<Profile> {
     ProfileCubit.getInstance(context).getPostsForCurrentUser(
       uId: AuthCubit.getInstance(context).userModel!.uId,
     );
-    // TODO: implement initState
     super.initState();
   }
 
@@ -130,7 +130,9 @@ class _ProfileState extends State<Profile> {
                             ),
                             Container(
                               decoration: BoxDecoration(
-                                  color: Colors.grey[400],
+                                  color: SharedPrefs.sharedPreferences.getBool('appTheme') == false ?
+                                  Colors.grey[500] :
+                                  Colors.grey[700],
                                   borderRadius: BorderRadius.circular(16)
                               ),
                               child: Align(
@@ -168,7 +170,9 @@ class _ProfileState extends State<Profile> {
                             ),
                             if(state is GetUserPostsLoadingState)
                               const Center(child: CircularProgressIndicator()),
-                            if(ProfileCubit.getInstance(context).currentUserPosts.isEmpty)
+                            if(ProfileCubit.getInstance(context).currentUserPosts.isEmpty ||
+                                ProfileCubit.getInstance(context).currentUserPostsCommentsNumber.isEmpty ||
+                                ProfileCubit.getInstance(context).currentUserPostsLikesNumber.isEmpty)
                               Center(
                                   child: MyText(
                                       text: 'No posts yet',
@@ -176,12 +180,15 @@ class _ProfileState extends State<Profile> {
                                     fontWeight: FontWeight.w500,
                                   ),
                               ),
-                            if(ProfileCubit.getInstance(context).currentUserPosts.isNotEmpty)
-                              ListView.separated(
+                            if(ProfileCubit.getInstance(context).currentUserPosts.isNotEmpty &&
+                                ProfileCubit.getInstance(context).currentUserPostsCommentsNumber.isNotEmpty &&
+                                ProfileCubit.getInstance(context).currentUserPostsLikesNumber.isNotEmpty)                              ListView.separated(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) => Card(
-                                  child: Column(
+                                  child: ProfileCubit.getInstance(context).postsLoading == true?
+                                  MyText(text: ''):
+                                  Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       ListTile(
@@ -202,14 +209,30 @@ class _ProfileState extends State<Profile> {
                                           fontSize: 15,
                                           fontWeight: FontWeight.w500,
                                         ),
-                                        trailing: IconButton(
-                                            onPressed: () {},
+                                        trailing: PopupMenuButton(
+                                          itemBuilder: (context) =>
+                                          [
+                                            PopupMenuItem(
+                                              child: MyText(text: 'Delete' ,fontSize: 16,),
+                                              onTap: () async
+                                              {
+                                                await ProfileCubit.getInstance(context).deletePostFromProfileAndAllPosts(
+                                                  index: index,
+                                                  uId: AuthCubit.getInstance(context).userModel!.uId,
+                                                  context: context,
+                                                );
+                                              },
+                                            ),
+                                          ],
                                             icon: const Icon(Icons.settings)),
                                       ),
-                                      MyText(
-                                        text: ProfileCubit.getInstance(context).currentUserPosts[index]['text'],
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: MyText(
+                                          text: ProfileCubit.getInstance(context).currentUserPosts[index]['text'],
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                       const SizedBox(
                                         height: 12,
@@ -227,28 +250,33 @@ class _ProfileState extends State<Profile> {
                                         child: Row(
                                           children: [
                                             MyText(
-                                              text: '10 Likes',
+                                              text: '${ProfileCubit.getInstance(context).currentUserPostsLikesNumber[index]} Likes',
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
                                             ),
                                             const Spacer(),
                                             InkWell(
-                                              onTap: ()
+                                              onTap: ()async
                                               {
-                                                scaffoldKey.currentState?.showBottomSheet((context) => SizedBox(
-                                                  width: double.infinity,
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(12.0),
-                                                    child: SizedBox(
-                                                      height: MediaQuery.of(context).size.height/1.2,
-                                                      width: double.infinity,
-                                                      child: Column(
-                                                        children: [
-                                                          MyText(
-                                                            text: 'All comments',
-                                                            fontSize: 20,
-                                                            fontWeight: FontWeight.w500,
-                                                          ),
+                                                await ProfileCubit.getInstance(context).getPostsCommentsForCurrentUser(
+                                                  uId: AuthCubit.getInstance(context).userModel!.uId,
+                                                  index: index,
+                                                ).then((value)
+                                                {
+                                                  scaffoldKey.currentState?.showBottomSheet((context) => SizedBox(
+                                                    width: double.infinity,
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(12.0),
+                                                      child: SizedBox(
+                                                        height: MediaQuery.of(context).size.height/1.2,
+                                                        width: double.infinity,
+                                                        child: Column(
+                                                          children: [
+                                                            MyText(
+                                                              text: 'All comments',
+                                                              fontSize: 20,
+                                                              fontWeight: FontWeight.w500,
+                                                            ),
                                                             SizedBox(
                                                               width: double.infinity,
                                                               height: MediaQuery.of(context).size.height/1.4,
@@ -264,12 +292,12 @@ class _ProfileState extends State<Profile> {
                                                                   elevation: 3,
                                                                   child: ListTile(
                                                                     leading: CircleAvatar(
-                                                                      backgroundImage: NetworkImage(ProfileCubit.getInstance(context).currentUserPostsComments[index]['userProfileImage']),
+                                                                      backgroundImage: NetworkImage(ProfileCubit.getInstance(context).currentUserPostsComments[index]?['userProfileImage']),
                                                                       radius: 30,
                                                                     ),
-                                                                    title: MyText(text: ProfileCubit.getInstance(context).currentUserPostsComments[index]['name'],fontWeight: FontWeight.w500,),
-                                                                    subtitle: MyText(text: ProfileCubit.getInstance(context).currentUserPostsComments[index]['comment'],fontWeight: FontWeight.w500,fontSize: 18,),
-                                                                    trailing: MyText(text: ProfileCubit.getInstance(context).currentUserPostsComments[index]['time']),
+                                                                    title: MyText(text: ProfileCubit.getInstance(context).currentUserPostsComments[index]?['name'],fontWeight: FontWeight.w500,),
+                                                                    subtitle: MyText(text: ProfileCubit.getInstance(context).currentUserPostsComments[index]?['comment'],fontWeight: FontWeight.w500,fontSize: 18,),
+                                                                    trailing: MyText(text: ProfileCubit.getInstance(context).currentUserPostsComments[index]?['time'],fontWeight: FontWeight.bold),
                                                                   ),
                                                                 ),
                                                                 separatorBuilder: (context, index) => const SizedBox(
@@ -278,14 +306,15 @@ class _ProfileState extends State<Profile> {
                                                                 itemCount: ProfileCubit.getInstance(context).currentUserPostsComments.length,
                                                               ),
                                                             ),
-                                                        ],
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ));
+                                                  ));
+                                                });
                                               },
                                               child: MyText(
-                                                text: '${ProfileCubit.getInstance(context).currentUserPostsComments.length} comments',
+                                                text: '${ProfileCubit.getInstance(context).currentUserPostsCommentsNumber[index]} comments',
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -300,7 +329,7 @@ class _ProfileState extends State<Profile> {
                                           height: 1.5,
                                         ),
                                       ),
-                                    ],
+                                    ]
                                   ),
                                 ),
                                 separatorBuilder: (context, index) => const SizedBox(height: 16,),

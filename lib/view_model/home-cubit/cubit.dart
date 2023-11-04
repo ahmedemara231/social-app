@@ -39,31 +39,28 @@ class HomeCubit extends Cubit<HomeStates>
         posts.add(element.data());
       });
       postsLoading = false;
-      await getPostsId().then((value)
-      {
-        emit(GetPostsSuccessState());
-      });
+      emit(GetPostsSuccessState());
     });
   }
 
-  List<String> postsId = [];
-  Future<void> getPostsId()async
-  {
-    postsId = [];
-    await FirebaseFirestore.instance
-        .collection('posts')
-        .get()
-        .then((value)
-    {
-      value.docs.forEach((element) {
-        postsId.add(element.id);
-      });
-      emit(GetPostsIdSuccessState());
-    }).catchError((error)
-    {
-      emit(GetPostsIdErrorState());
-    });
-  }
+  // List<String> postsId = [];
+  // Future<void> getPostsId()async
+  // {
+  //   postsId = [];
+  //   await FirebaseFirestore.instance
+  //       .collection('posts')
+  //       .get()
+  //       .then((value)
+  //   {
+  //     value.docs.forEach((element) {
+  //       postsId.add(element.id);
+  //     });
+  //     emit(GetPostsIdSuccessState());
+  //   }).catchError((error)
+  //   {
+  //     emit(GetPostsIdErrorState());
+  //   });
+  // }
 
   bool writeCommentsLoading = false;
   Future<void> writeComment({
@@ -74,7 +71,7 @@ class HomeCubit extends Cubit<HomeStates>
     writeCommentsLoading = true;
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsId[commentModel.index])
+        .doc(posts[commentModel.index]['id'])
         .collection('comments')
         .add(
         {
@@ -106,7 +103,7 @@ class HomeCubit extends Cubit<HomeStates>
     emit(GetAllCommentsLoadingState());
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsId[index])
+        .doc(posts[index]['id'])
         .collection('comments')
         .get()
         .then((value)
@@ -131,7 +128,7 @@ class HomeCubit extends Cubit<HomeStates>
     postCommentsIds = [];
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsId[index])
+        .doc(posts[index]['id'])
         .collection('comments')
         .get()
         .then((value)
@@ -156,7 +153,7 @@ class HomeCubit extends Cubit<HomeStates>
     log('$postIndex , $commentIndex');
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsId[postIndex])
+        .doc(posts[postIndex]['id'])
         .collection('comments')
         .doc(postCommentsIds[commentIndex])
         .delete()
@@ -210,10 +207,10 @@ class HomeCubit extends Cubit<HomeStates>
         .collection('user')
         .doc(savePostModel.id)
         .collection('savedPosts')
-        .doc(postsId[savePostModel.index])
+        .doc(posts[savePostModel.index]['id'])
         .set(
       {
-        'postId' : postsId[savePostModel.index],
+        'postId' : posts[savePostModel.index]['id'],
         'text' : savePostModel.text,
         'time' : savePostModel.time,
         'userName' : savePostModel.userName,
@@ -244,7 +241,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsId[index])
+        .doc(posts[index]['id'])
         .delete()
         .then((value)
     {
@@ -260,52 +257,27 @@ class HomeCubit extends Cubit<HomeStates>
 
         for(int i = 0; i < usersIds.length ; i++)
         {
-          log('loop');
           FirebaseFirestore.instance
               .collection('user')
               .doc(usersIds[i])
               .collection('savedPosts')
-              .where('postId',isEqualTo: postsId[index])
+              .where('postId',isEqualTo: posts[index]['id'])
               .get()
               .then((value)
           {
             value.docs.forEach((element) {
-              element.reference.delete().then((value) {
-
-                posts.remove(posts[index]);
-                postsId.remove(postsId[index]);
-
-                emit(DeletePostSuccessState());
-              });
+              element.reference.delete();
             });
           }).catchError((error)
           {
             emit(DeletePostErrorState());
           });
         }
-      });
+        posts.remove(posts[index]);
+        // posts.remove(posts[index]['id']);
 
-      
-      // هنا كنت عايز اما امسح بوست انا منزله يتمسح لو حد عمله save لكن لم تنجح
-      // FirebaseFirestore.instance
-      // .collection('user')
-      // .doc(uId)
-      // .collection('savedPosts')
-      // .get()
-      // .then((value)
-      // {
-      //   value.docs.forEach((element) {
-      //     if(element.id == postsId[index])
-      //       {
-      //         log(element.id);
-      //         element.reference.update({'text' : 'ahmed emara'});
-      //       }
-      //   });
-      //   emit(DeletePostSuccessState());
-      // }).catchError((error)
-      // {
-      //   emit(DeletePostErrorState());
-      // });
+        emit(DeletePostSuccessState());
+      });
 
       MySnackBar.showSnackBar(context: context, message: 'Deleted');
     }).catchError((error)
@@ -322,7 +294,7 @@ class HomeCubit extends Cubit<HomeStates>
     postLikes = [];
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsId[index])
+        .doc(posts[index]['id'])
         .collection('likes')
         .get()
         .then((value)
@@ -341,7 +313,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsId[index])
+        .doc(posts[index]['id'])
         .collection('likes')
         .doc(uId)
         .set(
@@ -365,7 +337,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsId[index])
+        .doc(posts[index]['id'])
         .collection('likes')
         .doc(uId)
         .delete()

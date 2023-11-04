@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:untitled10/models/sendMessage_model.dart';
@@ -13,11 +12,6 @@ class ChatsCubit extends Cubit<ChatsStates>
 
   List<Map<String,dynamic>> users = [];
   List<Map<String,dynamic>> filteredUserNameList = [];
-
-  // List<String> otherUserUId = [];
-  // List<String> filterOtherUserIds = [];
-
-
 
   Future<void> getUsers({
     required String uId,
@@ -39,8 +33,6 @@ class ChatsCubit extends Cubit<ChatsStates>
          else{
            users.add(element.data());
            filteredUserNameList = List.from(users);
-           // otherUserUId.add(element.id);
-           // filteredUserIdsList = List.from(otherUserUId);
          }
        });
        emit(GetUsersSuccessState());
@@ -62,8 +54,6 @@ class ChatsCubit extends Cubit<ChatsStates>
         .toString()
         .contains(pattern))
         .toList();
-    // انا لازم اعمل ليستة واحدة فيها كل الداتا بتاعة اليوزرز بال id بتاعهم عشان اعرف اعمل filterr لكله مع بعضه
-    // filterOtherUserIds = otherUserUId.where((element) => element.)
     emit(FilterUsersSuccessState());
   }
 

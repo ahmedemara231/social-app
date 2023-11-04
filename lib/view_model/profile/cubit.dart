@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:untitled10/models/profile_models.dart';
 import 'package:untitled10/modules/snackBar.dart';
+import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import 'package:untitled10/view_model/profile/states.dart';
 import 'package:untitled10/view_model/sharedPrefs/sharedPrefs.dart';
 
@@ -11,11 +14,13 @@ class ProfileCubit extends Cubit<ProfileStates>
   ProfileCubit(super.initialState);
   static ProfileCubit getInstance(context) => BlocProvider.of(context);
 
+  bool postsLoading = false;
   List<Map<String,dynamic>> currentUserPosts = [];
   Future<void> getPostsForCurrentUser({
     required String uId,
 })async
   {
+    postsLoading = true;
     emit(GetUserPostsLoadingState());
     currentUserPosts = [];
    await FirebaseFirestore.instance
@@ -27,39 +32,127 @@ class ProfileCubit extends Cubit<ProfileStates>
       value.docs.forEach((element) {
         currentUserPosts.add(element.data());
       });
-      emit(GetUserPostsSuccessState());
-      await getPostsCommentsForCurrentUser(uId: uId);
+      getCommentsAndLikesNumberForCurrentUserPosts(
+        uId: uId,
+      ).then((value)
+      {
+        postsLoading = false;
+        emit(GetUserPostsSuccessState());
+      });
     }).catchError((error)
    {
      emit(GetUserPostsErrorState());
    });
   }
 
-  List<Map<String,dynamic>> currentUserPostsComments = [];
-  Future<void> getPostsCommentsForCurrentUser({
+  Future<void> deletePostFromProfileAndAllPosts({
+    required int index,
     required String uId,
+    required context,
 })async
   {
-    await FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection('posts')
         .where('uId',isEqualTo: uId)
         .get()
         .then((value)
     {
       value.docs.forEach((element) {
-        element
-            .reference
-            .collection('comments')
+        if(element.id == currentUserPosts[index]['id'])
+          {
+            element.reference.delete();
+            currentUserPosts.remove(currentUserPosts[index]);
+            emit(DeletePostFromProfileAndAllPostsSuccessState());
+            MySnackBar.showSnackBar(context: context, message: 'Deleted');
+          }
+        else{
+          return;
+        }
+      });
+    }).catchError((error)
+    {
+      emit(DeletePostFromProfileAndAllPostsErrorState());
+    });
+  }
+
+  List<Map<String,dynamic>?> currentUserPostsComments = [];
+  Future<void> getPostsCommentsForCurrentUser({
+    required String uId,
+    required int index,
+})async
+  {
+    currentUserPostsComments = [];
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(currentUserPosts[index]['id'])
+        .collection('comments')
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        currentUserPostsComments.add(element.data());
+      });
+    });
+  }
+
+  Future<void> getCommentsAndLikesNumberForCurrentUserPosts({
+    required String uId,
+})async
+  {
+     getCommentNumberForEachPostForCurrentUser(
+      uId: uId,
+    ).then((value)async
+    {
+      await getLikesNumberForEachPostForCurrentUser(
+      uId: uId,
+      );
+    });
+
+  }
+
+  List<int> currentUserPostsCommentsNumber = [];
+  Future<void> getCommentNumberForEachPostForCurrentUser({
+    required uId,
+})async
+  {
+    currentUserPostsCommentsNumber = [];
+    FirebaseFirestore.instance
+        .collection('posts')
+        .where('uId',isEqualTo: uId)
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        element.reference.collection('comments')
             .get()
             .then((value)
         {
-          value.docs.forEach((element) {
-            currentUserPostsComments.add(element.data());
-          });
-          emit(GetUserPostsCommentsSuccessState());
-        }).catchError((error)
+          currentUserPostsCommentsNumber.add(value.docs.length);
+          emit(GetCommentNumberForEachPostForCurrentUserSuccessState());
+        });
+      });
+    });
+  }
+
+  List<int>currentUserPostsLikesNumber = [];
+  Future<void> getLikesNumberForEachPostForCurrentUser({
+    required String uId,
+})async
+  {
+    currentUserPostsLikesNumber = [];
+    FirebaseFirestore.instance
+        .collection('posts')
+        .where('uId',isEqualTo: uId)
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        element.reference.collection('likes')
+            .get()
+            .then((value)
         {
-          emit(GetUserPostsCommentsErrorState());
+          currentUserPostsLikesNumber.add(value.docs.length);
+          emit(GetLikesNumberForEachPostForCurrentUserSuccessState());
         });
       });
     });
