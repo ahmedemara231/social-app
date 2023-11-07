@@ -95,13 +95,58 @@ class _EditProfileState extends State<EditProfile> {
                                         child: IconButton(
                                             onPressed: ()
                                             {
-                                              UpdateProfileCubit.getInstance(context).updateCoverImage(
-                                                uId: AuthCubit.getInstance(context).userModel!.uId,
-                                                context: context,
-                                              ).then((value)
-                                              {
-                                                Navigator.pop(context);
-                                              });
+                                              scaffoldKey.currentState?.showBottomSheet((context) => SizedBox(
+                                                width: double.infinity,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(12.0),
+                                                  child: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      MyText(
+                                                        text: 'choose photo from ?',
+                                                        fontSize: 22,
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: ()
+                                                        {
+                                                          UpdateProfileCubit.getInstance(context).updateCoverImage(
+                                                            uId: AuthCubit.getInstance(context).userModel!.uId,
+                                                            method: ImageSource.camera,
+                                                            context: context,
+                                                          ).then((value)
+                                                          {
+                                                            Navigator.pop(context);
+                                                          });
+                                                        },
+                                                        child: MyText(
+                                                          text: 'Camera',
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: ()
+                                                        {
+                                                          UpdateProfileCubit.getInstance(context).updateCoverImage(
+                                                            uId: AuthCubit.getInstance(context).userModel!.uId,
+                                                            method: ImageSource.gallery,
+                                                            context: context,
+                                                          ).then((value)
+                                                          {
+                                                            Navigator.pop(context);
+                                                          });
+                                                        },
+                                                        child: MyText(
+                                                          text: 'Gallery',
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              );
                                             },
                                             icon: const Icon(
                                               Icons.camera_alt_outlined,

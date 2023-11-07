@@ -1,11 +1,8 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:untitled10/models/profile_models.dart';
 import 'package:untitled10/modules/snackBar.dart';
-import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import 'package:untitled10/view_model/profile/states.dart';
 import 'package:untitled10/view_model/sharedPrefs/sharedPrefs.dart';
 

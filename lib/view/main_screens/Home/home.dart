@@ -372,6 +372,8 @@ class _HomeState extends State<Home> {
                                     child: InkWell(
                                       onTap: () async
                                       {
+                                        // await HomeCubit.getInstance(context).disLike(uId: AuthCubit.getInstance(context).userModel!.uId, index: index);
+
                                         HomeCubit.getInstance(context).getAllLikesForPost(
                                           index: index,
                                         ).then((value)

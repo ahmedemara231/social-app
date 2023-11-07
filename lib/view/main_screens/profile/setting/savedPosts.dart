@@ -111,17 +111,17 @@ class _SavedPostsState extends State<SavedPosts> {
                       height: 12,
                     ),
                     if (ProfileCubit.getInstance(context).savedPosts[index]
-                    ['photo'] ==
-                        '')
+                    ['photo'] == '')
                       MyText(text: ''),
                     if (ProfileCubit.getInstance(context).savedPosts[index]
-                    ['photo'] !=
-                        '')
+                    ['photo'] != '')
                       ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: Image.network(
                               ProfileCubit.getInstance(context)
-                                  .savedPosts[index]['photo'])),
+                                  .savedPosts[index]['photo'],
+                          ),
+                      ),
                   ],
                 ),
               ),

@@ -20,10 +20,11 @@ class UpdateProfileCubit extends Cubit<UpdateProfileStates>
   Future<void> updateCoverImage({
     required String uId,
     required context,
+    required ImageSource method,
   })async
   {
     final ImagePicker picker = ImagePicker();
-    final XFile? photo = await picker.pickImage(source: ImageSource.camera).then((value)
+    final XFile? photo = await picker.pickImage(source: method).then((value)
     {
       selectedCoverImage = File(value!.path);
       imageCoverName = Uri.file(value.path).pathSegments.last;

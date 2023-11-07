@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:untitled10/modules/snackBar.dart';
 import 'package:untitled10/view_model/add_post/states.dart';
-import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import '../../models/addPost_model.dart';
 
 class AddPostCubit extends Cubit<AddPostStates> {

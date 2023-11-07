@@ -17,8 +17,7 @@ class AddPost extends StatelessWidget {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AddPostCubit,AddPostStates>(
-      listener: (context, state) {},
+    return BlocBuilder<AddPostCubit,AddPostStates>(
       builder: (context, state)
       {
         return  Scaffold(
@@ -26,8 +25,8 @@ class AddPost extends StatelessWidget {
           appBar: AppBar(
             title: MyText(text: 'Add new post',fontWeight: FontWeight.w500,),
             actions: [
-              StreamBuilder(
-                stream: FirebaseFirestore.instance.collection('user').doc(AuthCubit.getInstance(context).userModel?.uId).snapshots(),
+              FutureBuilder(
+                future: FirebaseFirestore.instance.collection('user').doc(AuthCubit.getInstance(context).userModel!.uId).get(),
                 builder: (context, snapshot)
                 {
                   return TextButton(
@@ -37,14 +36,14 @@ class AddPost extends StatelessWidget {
                       {
                         if(AddPostCubit.getInstance(context).selectedImage != null)
                         {
-                         await AddPostCubit.getInstance(context).addPostWithPhoto(
-                           addPostModel: AddPostModel(
-                             userName: snapshot.data?.data()?['name'],
-                             userProfileImage: snapshot.data?.data()?['profileImage'],
-                             text: postTextCont.text,
-                             time: Jiffy.now().yMMMdjm,
-                             uId: snapshot.data!.id,
-                           ),
+                          await AddPostCubit.getInstance(context).addPostWithPhoto(
+                            addPostModel: AddPostModel(
+                              userName: snapshot.data?.data()?['name'],
+                              userProfileImage: snapshot.data?.data()?['profileImage'],
+                              text: postTextCont.text,
+                              time: Jiffy.now().yMMMdjm,
+                              uId: snapshot.data!.id,
+                            ),
                             pickedImage: AddPostCubit.getInstance(context).selectedImage!,
                             context: context,
                           ).then((value)
@@ -56,14 +55,14 @@ class AddPost extends StatelessWidget {
                           });
                         }
                         else{
-                         await AddPostCubit.getInstance(context).addPostWithoutPhoto(
-                           addPostModel: AddPostModel(
-                             text: postTextCont.text,
-                             uId: snapshot.data!.id,
-                             userName: snapshot.data?.data()?['name'],
-                             userProfileImage: snapshot.data?.data()?['profileImage'],
-                             time: Jiffy.now().yMMMdjm,
-                           ),
+                          await AddPostCubit.getInstance(context).addPostWithoutPhoto(
+                            addPostModel: AddPostModel(
+                              text: postTextCont.text,
+                              uId: snapshot.data!.id,
+                              userName: snapshot.data?.data()?['name'],
+                              userProfileImage: snapshot.data?.data()?['profileImage'],
+                              time: Jiffy.now().yMMMdjm,
+                            ),
                             context: context,
                           ).then((value)
                           {

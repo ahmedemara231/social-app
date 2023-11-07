@@ -43,25 +43,6 @@ class HomeCubit extends Cubit<HomeStates>
     });
   }
 
-  // List<String> postsId = [];
-  // Future<void> getPostsId()async
-  // {
-  //   postsId = [];
-  //   await FirebaseFirestore.instance
-  //       .collection('posts')
-  //       .get()
-  //       .then((value)
-  //   {
-  //     value.docs.forEach((element) {
-  //       postsId.add(element.id);
-  //     });
-  //     emit(GetPostsIdSuccessState());
-  //   }).catchError((error)
-  //   {
-  //     emit(GetPostsIdErrorState());
-  //   });
-  // }
-
   bool writeCommentsLoading = false;
   Future<void> writeComment({
     required CommentModel commentModel,
@@ -351,42 +332,25 @@ class HomeCubit extends Cubit<HomeStates>
     });
   }
 
+
+
   void detectUserLike({
     required String uId,
     required int index,
   })
   {
-    postLikes.forEach((element)async {
-      if(element == uId)
+    for(int i = 0; i < postLikes.length; i++)
       {
-        await disLike(index: index, uId: uId);
+        if(uId == postLikes[i])
+          {
+             disLike(index: index, uId: uId);
+             break;
+          }
+        else{
+           like(uId: uId, index: index);
+           break;
+        }
       }
-      else{
-        await like(uId: uId, index: index);
-      }
-    });
   }
-
-//   List<Map<String,dynamic>> allLikesInPosts = [];
-//   void test({
-//     required int index,
-//     required String uId,
-// })async
-//   {
-//     await FirebaseFirestore.instance
-//         .collection('posts')
-//         .doc(postsId[index])
-//         .collection('likes')
-//         .get()
-//         .then((value)
-//     {
-//       value.docs.forEach((element) {
-//         allLikesInPosts.add(element.data());
-//       });
-//       if(uId == allLikesInPosts[index]['uId'])
-//     },
-//     );
-//
-//   }
 
 }
