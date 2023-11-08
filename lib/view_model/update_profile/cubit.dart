@@ -24,7 +24,7 @@ class UpdateProfileCubit extends Cubit<UpdateProfileStates>
   })async
   {
     final ImagePicker picker = ImagePicker();
-    final XFile? photo = await picker.pickImage(source: method).then((value)
+    await picker.pickImage(source: method).then((value)
     {
       selectedCoverImage = File(value!.path);
       imageCoverName = Uri.file(value.path).pathSegments.last;
@@ -68,7 +68,7 @@ class UpdateProfileCubit extends Cubit<UpdateProfileStates>
 })async
   {
     final ImagePicker picker = ImagePicker();
-    final XFile? photo = await picker.pickImage(source: method)
+    await picker.pickImage(source: method)
         .then((value) {
       selectedProfileImage = File(value!.path);
       imageProfileName = Uri

@@ -11,6 +11,8 @@ import '../../../view_model/update_profile/cubit.dart';
 import '../../../view_model/update_profile/states.dart';
 
 class EditProfile extends StatefulWidget {
+  const EditProfile({super.key});
+
 
   @override
   State<EditProfile> createState() => _EditProfileState();

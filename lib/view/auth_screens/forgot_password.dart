@@ -9,7 +9,7 @@ import '../../modules/snackBar.dart';
 class ForgotPassword extends StatelessWidget {
    ForgotPassword({super.key});
 
-  var forgotPwCont = TextEditingController();
+  final forgotPwCont = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit,AuthStates>(
@@ -41,7 +41,7 @@ class ForgotPassword extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                OutlinedButton(
+                ElevatedButton(
                   onPressed: ()
                   {
                     if(forgotPwCont.text.isEmpty)
@@ -58,7 +58,7 @@ class ForgotPassword extends StatelessWidget {
                       );
                     }
                   },
-                  style: OutlinedButton.styleFrom(
+                  style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       backgroundColor: Colors.blue
                   ) ,

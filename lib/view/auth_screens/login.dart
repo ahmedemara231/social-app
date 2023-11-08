@@ -16,11 +16,11 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 class _LoginState extends State<Login> {
-  var formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
-  var emailCont = TextEditingController();
+  final emailCont = TextEditingController();
 
-  var passCont = TextEditingController();
+  final passCont = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

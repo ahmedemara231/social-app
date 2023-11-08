@@ -12,6 +12,8 @@ import 'package:untitled10/view_model/sharedPrefs/sharedPrefs.dart';
 import '../../../modules/myText.dart';
 
 class Profile extends StatefulWidget {
+  const Profile({super.key});
+
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -143,7 +145,7 @@ class _ProfileState extends State<Profile> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EditProfile(),
+                                        builder: (context) => const EditProfile(),
                                       ),
                                     );
                                   },

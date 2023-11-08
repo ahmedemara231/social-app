@@ -8,17 +8,14 @@ import '../main_screens/chats/users.dart';
 
 class BottomNavBar extends StatelessWidget {
 
-//   UserModel currentUser;
-  const BottomNavBar();
+  const BottomNavBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     List<Widget> mainScreens =
     [
-      Home(
-        // currentUser: currentUser,
-      ),
-      Users(),
+      const Home(),
+      const Users(),
       Profile(),
     ];
     return BlocConsumer<HomeCubit,HomeStates>(

@@ -1,12 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:untitled10/models/profile_models.dart';
 import 'package:untitled10/modules/myText.dart';
 import 'package:untitled10/modules/textFormField.dart';
-import 'package:untitled10/modules/toast.dart';
 import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import 'package:untitled10/view_model/profile/cubit.dart';
 import 'package:untitled10/view_model/profile/states.dart';
@@ -16,8 +13,8 @@ import 'my_reports.dart';
 class ReportProblem extends StatelessWidget {
    ReportProblem({super.key});
 
-   var formKey = GlobalKey<FormState>();
-  var reportCont = TextEditingController();
+   final formKey = GlobalKey<FormState>();
+   final reportCont = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

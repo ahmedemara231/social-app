@@ -12,9 +12,11 @@ import 'package:untitled10/view_model/home-cubit/cubit.dart';
 
 class AddPost extends StatelessWidget {
 
-  var postTextCont = TextEditingController();
-  var formKey = GlobalKey<FormState>();
-  var scaffoldKey = GlobalKey<ScaffoldState>();
+  final postTextCont = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  AddPost({super.key});
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AddPostCubit,AddPostStates>(
@@ -127,6 +129,9 @@ class AddPost extends StatelessWidget {
                                 {
                                   return 'This field can not be empty';
                                 }
+                              else{
+                                return null;
+                              }
                             },
                             style: const TextStyle(
                               fontSize: 18,

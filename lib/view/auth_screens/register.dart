@@ -10,12 +10,12 @@ import 'login.dart';
 
 class Register extends StatelessWidget {
   Register({super.key});
-  var formKey = GlobalKey<FormState>();
-  var nameCont = TextEditingController();
-  var emailCont = TextEditingController();
-  var passCont = TextEditingController();
-  var confPassCont = TextEditingController();
-  var phoneCont = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final nameCont = TextEditingController();
+  final emailCont = TextEditingController();
+  final passCont = TextEditingController();
+  final confPassCont = TextEditingController();
+  final phoneCont = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

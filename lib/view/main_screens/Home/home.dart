@@ -14,6 +14,7 @@ import 'package:untitled10/view_model/home-cubit/cubit.dart';
 import 'package:untitled10/view_model/home-cubit/states.dart';
 
 class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
@@ -292,19 +293,17 @@ class _HomeState extends State<Home> {
                                                                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                                                                 child: MyText(text: HomeCubit.getInstance(context).allComments[index]?['comment'],fontWeight: FontWeight.w500,fontSize: 18,),
                                                               ),
-                                                              trailing: PopupMenuButton(
+                                                              trailing: HomeCubit.getInstance(context).allComments[index]?['uId'] == AuthCubit.getInstance(context).userModel!.uId?
+                                                              PopupMenuButton(
                                                                 itemBuilder: (context) =>
                                                                 [
-                                                                  PopupMenuItem(
+                                                                    PopupMenuItem(
                                                                     child: MyText(
                                                                       text: 'edit',fontSize: 16,
                                                                     ),
-                                                                    onTap: ()
-                                                                    {
-                                                                      // HomeCubit.getInstance(context).setState();
-                                                                    },
+                                                                    onTap: () {},
                                                                   ),
-                                                                  PopupMenuItem(
+                                                                    PopupMenuItem(
                                                                     child: MyText(
                                                                       text: 'Delete',
                                                                       fontSize: 16,
@@ -318,7 +317,8 @@ class _HomeState extends State<Home> {
                                                                     },
                                                                   ),
                                                                 ],
-                                                              ),
+                                                              ):
+                                                              null,
                                                             ),
                                                           ),
                                                           separatorBuilder: (context, index) => const SizedBox(
@@ -372,8 +372,6 @@ class _HomeState extends State<Home> {
                                     child: InkWell(
                                       onTap: () async
                                       {
-                                        // await HomeCubit.getInstance(context).disLike(uId: AuthCubit.getInstance(context).userModel!.uId, index: index);
-
                                         HomeCubit.getInstance(context).getAllLikesForPost(
                                           index: index,
                                         ).then((value)
@@ -443,8 +441,8 @@ class _HomeState extends State<Home> {
                                                     return const CircularProgressIndicator();
                                                   }
                                                   else{
-                                                    return OutlinedButton(
-                                                      style: OutlinedButton.styleFrom(
+                                                    return ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
                                                         backgroundColor: Colors.blue,
                                                         shape: RoundedRectangleBorder(
                                                           borderRadius: BorderRadius.circular(20),

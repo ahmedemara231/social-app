@@ -94,7 +94,7 @@ class AddPostCubit extends Cubit<AddPostStates> {
       {
         selectedImage = File(value.path);
         imagePostName = Uri.file(value.path).pathSegments.last;
-        print(value.path);
+
         emit(SelectImageForPostSuccessState());
       }
     }).catchError((error)
