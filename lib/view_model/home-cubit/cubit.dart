@@ -38,8 +38,27 @@ class HomeCubit extends Cubit<HomeStates>
       value.docs.forEach((element) {
         posts.add(element.data());
       });
-      postsLoading = false;
-      emit(GetPostsSuccessState());
+      await getPostsIds().then((value)
+      {
+        postsLoading = false;
+        emit(GetPostsSuccessState());
+      });
+    });
+  }
+
+  List<String> postsIds = [];
+  Future<void> getPostsIds()async
+  {
+    postsIds = [];
+    FirebaseFirestore.instance
+        .collection('posts')
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        postsIds.add(element.id);
+      });
+      emit(GetPostsIdSuccessState());
     });
   }
 
@@ -52,7 +71,7 @@ class HomeCubit extends Cubit<HomeStates>
     writeCommentsLoading = true;
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(posts[commentModel.index]['id'])
+        .doc(postsIds[commentModel.index])
         .collection('comments')
         .add(
         {
@@ -84,7 +103,7 @@ class HomeCubit extends Cubit<HomeStates>
     emit(GetAllCommentsLoadingState());
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(posts[index]['id'])
+        .doc(postsIds[index])
         .collection('comments')
         .get()
         .then((value)
@@ -109,7 +128,7 @@ class HomeCubit extends Cubit<HomeStates>
     postCommentsIds = [];
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(posts[index]['id'])
+        .doc(postsIds[index])
         .collection('comments')
         .get()
         .then((value)
@@ -134,7 +153,7 @@ class HomeCubit extends Cubit<HomeStates>
     log('$postIndex , $commentIndex');
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(posts[postIndex]['id'])
+        .doc(postsIds[postIndex])
         .collection('comments')
         .doc(postCommentsIds[commentIndex])
         .delete()
@@ -188,10 +207,9 @@ class HomeCubit extends Cubit<HomeStates>
         .collection('user')
         .doc(savePostModel.id)
         .collection('savedPosts')
-        .doc(posts[savePostModel.index]['id'])
+        .doc(postsIds[savePostModel.index])
         .set(
       {
-        'postId' : posts[savePostModel.index]['id'],
         'text' : savePostModel.text,
         'time' : savePostModel.time,
         'userName' : savePostModel.userName,
@@ -222,7 +240,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(posts[index]['id'])
+        .doc(postsIds[index])
         .delete()
         .then((value)
     {
@@ -242,7 +260,7 @@ class HomeCubit extends Cubit<HomeStates>
               .collection('user')
               .doc(usersIds[i])
               .collection('savedPosts')
-              .where('postId',isEqualTo: posts[index]['id'])
+              .where('postId',isEqualTo: postsIds[index])
               .get()
               .then((value)
           {
@@ -255,7 +273,7 @@ class HomeCubit extends Cubit<HomeStates>
           });
         }
         posts.remove(posts[index]);
-        // posts.remove(posts[index]['id']);
+        postsIds.remove(postsIds[index]);
 
         emit(DeletePostSuccessState());
       });
@@ -267,6 +285,33 @@ class HomeCubit extends Cubit<HomeStates>
     });
   }
 
+  Future<void> editPostCaption({
+    required String newText,
+    required context,
+    required int index,
+})async
+  {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postsIds[index])
+        .update(
+        {
+          'text' : newText,
+        },
+    ).then((value) {
+      MySnackBar.showSnackBar(
+          context: context,
+          message: 'Caption Updated',
+          color: Colors.green
+      );
+      emit(EditPostCaptionSuccessState());
+    }).catchError((error)
+    {
+      log(error.toString());
+      emit(EditPostCaptionErrorState());
+    });
+  }
+
   List<String> postLikes = [];
   Future<void> getAllLikesForPost({
     required int index,
@@ -275,7 +320,7 @@ class HomeCubit extends Cubit<HomeStates>
     postLikes = [];
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(posts[index]['id'])
+        .doc(postsIds[index])
         .collection('likes')
         .get()
         .then((value)
@@ -294,7 +339,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(posts[index]['id'])
+        .doc(postsIds[index])
         .collection('likes')
         .doc(uId)
         .set(
@@ -318,7 +363,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(posts[index]['id'])
+        .doc(postsIds[index])
         .collection('likes')
         .doc(uId)
         .delete()
@@ -331,8 +376,6 @@ class HomeCubit extends Cubit<HomeStates>
       emit(DisLikeErrorState());
     });
   }
-
-
 
   void detectUserLike({
     required String uId,

@@ -37,22 +37,16 @@ class AddPostCubit extends Cubit<AddPostStates> {
     emit(AddPostLoadingState());
     await FirebaseFirestore.instance
         .collection('posts')
-        .add({})
-        .then((value)
+        .add(
+        {
+          'text' : addPostModel.text,
+          'time' : addPostModel.time,
+          'uId' : addPostModel.uId,
+          'userProfileImage' : addPostModel.userProfileImage,
+          'userName' : addPostModel.userName,
+        },
+    ).then((value)
     {
-      FirebaseFirestore.instance
-      .collection('posts')
-      .doc(value.id)
-      .set(
-          {
-            'text' : addPostModel.text,
-            'time' : addPostModel.time,
-            'uId' : addPostModel.uId,
-            'id' : value.id,
-            'userProfileImage' : addPostModel.userProfileImage,
-            'userName' : addPostModel.userName,
-          },
-      );
       FirebaseFirestore.instance
           .collection('posts')
           .doc(value.id)
@@ -116,29 +110,19 @@ class AddPostCubit extends Cubit<AddPostStates> {
     .putFile(pickedImage)
     .then((value)
     {
-      value.ref
-          .getDownloadURL()
-          .then((value) async
+      value.ref.getDownloadURL().then((value) async
        {
-         await FirebaseFirestore.instance
+          await FirebaseFirestore.instance
              .collection('posts')
-             .add({})
-             .then((value)
+             .add({
+            'userName' : addPostModel.userName,
+            'userProfileImage' : addPostModel.userProfileImage,
+            'text' : addPostModel.text,
+            'photo' : value,
+            'time' : addPostModel.time,
+            'uId' : addPostModel.uId,
+          }).then((value)
          {
-           FirebaseFirestore.instance
-           .collection('posts')
-           .doc(value.id)
-           .set(
-               {
-                 'userName' : addPostModel.userName,
-                 'userProfileImage' : addPostModel.userProfileImage,
-                 'text' : addPostModel.text,
-                 'photo' : value,
-                 'time' : addPostModel.time,
-                 'uId' : addPostModel.uId,
-                 'id' : value.id,
-               },
-           );
            FirebaseFirestore.instance
            .collection('posts')
            .doc(value.id)

@@ -170,11 +170,7 @@ class _ProfileState extends State<Profile> {
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
                             ),
-                            if(state is GetUserPostsLoadingState)
-                              const Center(child: CircularProgressIndicator()),
-                            if(ProfileCubit.getInstance(context).currentUserPosts.isEmpty ||
-                                ProfileCubit.getInstance(context).currentUserPostsCommentsNumber.isEmpty ||
-                                ProfileCubit.getInstance(context).currentUserPostsLikesNumber.isEmpty)
+                            if(ProfileCubit.getInstance(context).currentUserPosts.isEmpty)
                               Center(
                                   child: MyText(
                                       text: 'No posts yet',
@@ -182,9 +178,8 @@ class _ProfileState extends State<Profile> {
                                     fontWeight: FontWeight.w500,
                                   ),
                               ),
-                            if(ProfileCubit.getInstance(context).currentUserPosts.isNotEmpty &&
-                                ProfileCubit.getInstance(context).currentUserPostsCommentsNumber.isNotEmpty &&
-                                ProfileCubit.getInstance(context).currentUserPostsLikesNumber.isNotEmpty)                              ListView.separated(
+                            if(ProfileCubit.getInstance(context).currentUserPosts.isNotEmpty)
+                              ListView.separated(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) => Card(
@@ -196,7 +191,11 @@ class _ProfileState extends State<Profile> {
                                       ListTile(
                                         leading: CircleAvatar(
                                           radius : 25,
-                                          backgroundImage: NetworkImage(
+                                          backgroundImage: ProfileCubit.getInstance(context).currentUserPosts[index]['userProfileImage'] == ''?
+                                          const NetworkImage(
+                                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTs4XdD00sHtFKBYeyzKvz1CUHr598N0yrUA&usqp=CAU'
+                                          ):
+                                          NetworkImage(
                                             ProfileCubit.getInstance(context).currentUserPosts[index]['userProfileImage'],
                                           ),
                                         ),
@@ -252,7 +251,9 @@ class _ProfileState extends State<Profile> {
                                         child: Row(
                                           children: [
                                             MyText(
-                                              text: '${ProfileCubit.getInstance(context).currentUserPostsLikesNumber[index]} Likes',
+                                              text: ProfileCubit.getInstance(context).currentUserPostsLikesNumber.isEmpty?
+                                              '...' :
+                                              '${ProfileCubit.getInstance(context).currentUserPostsLikesNumber[index]} Likes',
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -294,7 +295,9 @@ class _ProfileState extends State<Profile> {
                                                                   elevation: 3,
                                                                   child: ListTile(
                                                                     leading: CircleAvatar(
-                                                                      backgroundImage: NetworkImage(ProfileCubit.getInstance(context).currentUserPostsComments[index]?['userProfileImage']),
+                                                                      backgroundImage: ProfileCubit.getInstance(context).currentUserPostsComments[index]?['userProfileImage'] == '' ?
+                                                                      const NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTs4XdD00sHtFKBYeyzKvz1CUHr598N0yrUA&usqp=CAU'):
+                                                                        NetworkImage(ProfileCubit.getInstance(context).currentUserPostsComments[index]?['userProfileImage']),
                                                                       radius: 30,
                                                                     ),
                                                                     title: MyText(text: ProfileCubit.getInstance(context).currentUserPostsComments[index]?['name'],fontWeight: FontWeight.w500,),
@@ -316,7 +319,9 @@ class _ProfileState extends State<Profile> {
                                                 });
                                               },
                                               child: MyText(
-                                                text: '${ProfileCubit.getInstance(context).currentUserPostsCommentsNumber[index]} comments',
+                                                text: ProfileCubit.getInstance(context).currentUserPostsCommentsNumber.isEmpty?
+                                                '...' :
+                                                '${ProfileCubit.getInstance(context).currentUserPostsCommentsNumber[index]} comments',
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
                                               ),

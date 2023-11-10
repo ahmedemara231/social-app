@@ -12,6 +12,8 @@ import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import 'package:untitled10/view_model/auth_cubit/states.dart';
 import 'package:untitled10/view_model/home-cubit/cubit.dart';
 import 'package:untitled10/view_model/home-cubit/states.dart';
+import 'package:untitled10/view_model/sharedPrefs/sharedPrefs.dart';
+import 'edit_post.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -33,16 +35,7 @@ class _HomeState extends State<Home> {
   // الداتا كلها من الفاير ماعدا الappBar
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeCubit, HomeStates>(
-      listener: (context, state)
-      {
-        // if(state is GetPostsSuccessState){
-        //   log('the state is : $state');
-        // }
-        // else{
-        //   log('none');
-        // }
-      },
+    return BlocBuilder<HomeCubit, HomeStates>(
       builder: (context, state) {
         return BlocBuilder<AuthCubit, AuthStates>(
           builder: (context, state) {
@@ -55,7 +48,8 @@ class _HomeState extends State<Home> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              body: HomeCubit.getInstance(context).postsLoading == false?
+              body: HomeCubit.getInstance(context).posts.isNotEmpty &&
+                HomeCubit.getInstance(context).postsIds.isNotEmpty?
               ListView(
                 scrollDirection: Axis.vertical,
                 children: [
@@ -79,32 +73,32 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       Expanded(
-                        child: Padding(
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 10.0),
-                          child: TextFormField(
-                            readOnly: true,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddPost(),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddPost(),
+                              ),
+                            );
+                          },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: SharedPrefs.sharedPreferences.getBool('appTheme') == false?
+                                  Colors.grey[300]:
+                                  Colors.grey[800],
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                              );
-                            },
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w400),
-                            decoration: InputDecoration(
-                              errorStyle: const TextStyle(fontSize: 19),
-                              hintText: 'What\'s on your mind?',
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                    width: 1.3,
-                                  ),
-                                  borderRadius: BorderRadius.circular(30)),
+                                width: double.infinity,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 14.0,horizontal: 16),
+                                  child: MyText(text: 'What\'s on your mind?'),
+                                )
+                              ),
                             ),
-                          ),
-                        ),
+                        )
                       ),
                     ],
                   ),
@@ -149,9 +143,10 @@ class _HomeState extends State<Home> {
                               trailing: PopupMenuButton(
                                 itemBuilder: (context) =>
                                 [
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      HomeCubit.getInstance(context).savePost(
+                                  if(HomeCubit.getInstance(context).posts[index]['uId'] != AuthCubit.getInstance(context).userModel!.uId)
+                                    PopupMenuItem(
+                                    onTap: () async {
+                                      await HomeCubit.getInstance(context).savePost(
                                         savePostModel: SavePostModel(
                                           id: AuthCubit.getInstance(context).userModel!.uId,
                                           text: HomeCubit.getInstance(context).posts[index]['text'],
@@ -171,9 +166,9 @@ class _HomeState extends State<Home> {
                                   ),
                                   if(HomeCubit.getInstance(context).posts[index]['uId'] == AuthCubit.getInstance(context).userModel!.uId)
                                     PopupMenuItem(
-                                      onTap: ()
+                                      onTap: ()async
                                       {
-                                        HomeCubit.getInstance(context).deletePost(
+                                        await HomeCubit.getInstance(context).deletePost(
                                           context: context,
                                           index: index,
                                           uId: AuthCubit.getInstance(context).userModel!.uId,
@@ -183,7 +178,26 @@ class _HomeState extends State<Home> {
                                         text: 'Delete post',
                                         fontSize: 16,
                                       ),
-                                    )
+                                    ),
+                                  if(HomeCubit.getInstance(context).posts[index]['uId'] == AuthCubit.getInstance(context).userModel!.uId)
+                                    PopupMenuItem(
+                                      onTap: ()
+                                      {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => EditPost(
+                                                post: HomeCubit.getInstance(context).posts[index],
+                                                index: index,
+                                              ),
+                                            ),
+                                        );
+                                      },
+                                      child: MyText(
+                                        text: 'Edit Caption',
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -282,7 +296,9 @@ class _HomeState extends State<Home> {
                                                             elevation: 3,
                                                             child: ListTile(
                                                               leading: CircleAvatar(
-                                                                backgroundImage: NetworkImage(HomeCubit.getInstance(context).allComments[index]?['userProfileImage']),
+                                                                backgroundImage: HomeCubit.getInstance(context).allComments[index]?['userProfileImage'] == ''?
+                                                                const NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTs4XdD00sHtFKBYeyzKvz1CUHr598N0yrUA&usqp=CAU'):
+                                                                NetworkImage(HomeCubit.getInstance(context).allComments[index]?['userProfileImage']),
                                                                 radius: 30,
                                                               ),
                                                               title: MyText(
@@ -337,7 +353,7 @@ class _HomeState extends State<Home> {
                                       });
                                     },
                                     child: StreamBuilder(
-                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).posts[index]['id']).collection('comments').snapshots(),
+                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).postsIds[index]).collection('comments').snapshots(),
                                       builder: (context, snapshot)
                                       {
                                         if(snapshot.hasData)

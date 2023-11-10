@@ -50,10 +50,8 @@ class AddPost extends StatelessWidget {
                             context: context,
                           ).then((value)
                           {
-                            HomeCubit.getInstance(context).getAllPosts().then((value)
-                            {
-                              Navigator.pop(context);
-                            });
+                            Navigator.pop(context);
+                            AddPostCubit.getInstance(context).selectedImage = null;
                           });
                         }
                         else{
@@ -68,10 +66,8 @@ class AddPost extends StatelessWidget {
                             context: context,
                           ).then((value)
                           {
-                            HomeCubit.getInstance(context).getAllPosts().then((value)
-                            {
-                              Navigator.pop(context);
-                            });
+                            Navigator.pop(context);
+                            AddPostCubit.getInstance(context).selectedImage = null;
                           });
                         }
                       }
@@ -109,7 +105,9 @@ class AddPost extends StatelessWidget {
                         {
                           return CircleAvatar(
                             radius: 25,
-                            backgroundImage: NetworkImage(snapshot.requireData),
+                            backgroundImage: snapshot.requireData == ''?
+                            const NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTs4XdD00sHtFKBYeyzKvz1CUHr598N0yrUA&usqp=CAU'):
+                            NetworkImage(snapshot.requireData),
                           );
                         }
                         else{

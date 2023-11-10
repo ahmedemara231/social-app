@@ -10,11 +10,7 @@ class GetPostsSuccessState extends HomeStates {}
 
 class GetPostsErrorState extends HomeStates {}
 
-class GetPostsIdLoadingState extends HomeStates {}
-
 class GetPostsIdSuccessState extends HomeStates {}
-
-class GetPostsIdErrorState extends HomeStates {}
 
 class WriteCommentLoadingState extends HomeStates{}
 
@@ -39,6 +35,10 @@ class SavePostErrorState extends HomeStates{}
 class DeletePostSuccessState extends HomeStates{}
 
 class DeletePostErrorState extends HomeStates{}
+
+class EditPostCaptionSuccessState extends HomeStates{}
+
+class EditPostCaptionErrorState extends HomeStates{}
 
 class DeleteCommentSuccessState extends HomeStates{}
 
