@@ -32,6 +32,8 @@ class SavePostSuccessState extends HomeStates{}
 
 class SavePostErrorState extends HomeStates{}
 
+class GetUserIdsSuccessState extends HomeStates{}
+
 class DeletePostSuccessState extends HomeStates{}
 
 class DeletePostErrorState extends HomeStates{}

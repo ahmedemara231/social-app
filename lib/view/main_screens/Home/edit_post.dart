@@ -18,7 +18,7 @@ class EditPost extends StatefulWidget {
 }
 
 class _EditPostState extends State<EditPost> {
-   var editCaptionCont = TextEditingController();
+   final editCaptionCont = TextEditingController();
 
    @override
   void initState() {
@@ -53,7 +53,7 @@ class _EditPostState extends State<EditPost> {
                         context: context,
                     ).then((value)
                     {
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
                     });
                   },
                     obscureText: false,

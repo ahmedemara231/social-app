@@ -29,9 +29,9 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
-  var scaffoldKey = GlobalKey<ScaffoldState>();
-  var formKey = GlobalKey<FormState>();
-  var commentCont = TextEditingController();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final formKey = GlobalKey<FormState>();
+  final commentCont = TextEditingController();
   // الداتا كلها من الفاير ماعدا الappBar
   @override
   Widget build(BuildContext context) {
@@ -230,7 +230,7 @@ class _HomeState extends State<Home> {
                                   InkWell(
                                     onTap: () {},
                                     child: StreamBuilder(
-                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).posts[index]['id']).collection('likes').snapshots(),
+                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).postsIds[index]).collection('likes').snapshots(),
                                       builder: (context, snapshot)
                                       {
                                         if(snapshot.hasData)
@@ -392,10 +392,10 @@ class _HomeState extends State<Home> {
                                           index: index,
                                         ).then((value)
                                         {
-                                          HomeCubit.getInstance(context).detectUserLike(
-                                              uId: AuthCubit.getInstance(context).userModel!.uId,
-                                              index: index,
-                                          );
+                                          // HomeCubit.getInstance(context).detectUserLike(
+                                          //     uId: AuthCubit.getInstance(context).userModel!.uId,
+                                          //     index: index,
+                                          // );
                                         }
                                         );
                                       },
@@ -449,8 +449,8 @@ class _HomeState extends State<Home> {
                                                   ),
                                                 ),
                                               ),
-                                              StreamBuilder(
-                                                stream: FirebaseFirestore.instance.collection('user').doc(AuthCubit.getInstance(context).userModel?.uId).snapshots(),
+                                              FutureBuilder(
+                                                future: FirebaseFirestore.instance.collection('user').doc(AuthCubit.getInstance(context).userModel!.uId).get(),
                                                 builder: (context, snapshot)
                                                 {
                                                   if(HomeCubit.getInstance(context).writeCommentsLoading == true) {

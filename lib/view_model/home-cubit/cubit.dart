@@ -22,6 +22,7 @@ class HomeCubit extends Cubit<HomeStates>
   }
 
   List<Map<String,dynamic>> posts = [];
+  List<String> postsIds = [];
 
   bool postsLoading = false;
   Future<void> getAllPosts()async
@@ -30,6 +31,7 @@ class HomeCubit extends Cubit<HomeStates>
     emit(HomeLoadingState());
 
     posts = [];
+    postsIds = [];
     await FirebaseFirestore.instance
         .collection('posts')
         .get()
@@ -37,28 +39,10 @@ class HomeCubit extends Cubit<HomeStates>
     {
       value.docs.forEach((element) {
         posts.add(element.data());
-      });
-      await getPostsIds().then((value)
-      {
-        postsLoading = false;
-        emit(GetPostsSuccessState());
-      });
-    });
-  }
-
-  List<String> postsIds = [];
-  Future<void> getPostsIds()async
-  {
-    postsIds = [];
-    FirebaseFirestore.instance
-        .collection('posts')
-        .get()
-        .then((value)
-    {
-      value.docs.forEach((element) {
         postsIds.add(element.id);
       });
-      emit(GetPostsIdSuccessState());
+      postsLoading = false;
+      emit(GetPostsSuccessState());
     });
   }
 
@@ -100,6 +84,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     allComments = [];
     getCommentsLoading = true;
+
     emit(GetAllCommentsLoadingState());
     await FirebaseFirestore.instance
         .collection('posts')
@@ -136,7 +121,6 @@ class HomeCubit extends Cubit<HomeStates>
       value.docs.forEach((element) {
         postCommentsIds.add(element.id);
       });
-      log('$postCommentsIds');
       emit(GetCommentsIdsSuccessState());
     }).catchError((error)
     {
@@ -210,6 +194,7 @@ class HomeCubit extends Cubit<HomeStates>
         .doc(postsIds[savePostModel.index])
         .set(
       {
+        'postId' : postsIds[savePostModel.index],
         'text' : savePostModel.text,
         'time' : savePostModel.time,
         'userName' : savePostModel.userName,
@@ -232,29 +217,37 @@ class HomeCubit extends Cubit<HomeStates>
 
   List<String> usersIds = [];
 
+  Future<void> getUsersIds()async
+  {
+    usersIds = [];
+    FirebaseFirestore.instance
+        .collection('user')
+        .get()
+        .then((value)
+    {
+      value.docs.forEach((element) {
+        usersIds.add(element.id);
+      });
+      emit(GetUserIdsSuccessState());
+    });
+
+  }
+
   Future<void> deletePost({
     required context,
     required int index,
     required String uId,
 })async
   {
-    await FirebaseFirestore.instance
-        .collection('posts')
-        .doc(postsIds[index])
-        .delete()
-        .then((value)
+    await getUsersIds().then((value)
     {
-      usersIds = [];
-      FirebaseFirestore.instance
-      .collection('user')
-      .get()
-      .then((value) 
+       FirebaseFirestore.instance
+          .collection('posts')
+          .doc(postsIds[index])
+          .delete()
+          .then((value)async
       {
-        value.docs.forEach((element) { 
-          usersIds.add(element.id);
-        });
-
-        for(int i = 0; i < usersIds.length ; i++)
+        for(int i = 0; i <= usersIds.length ; i++)
         {
           FirebaseFirestore.instance
               .collection('user')
@@ -265,23 +258,25 @@ class HomeCubit extends Cubit<HomeStates>
               .then((value)
           {
             value.docs.forEach((element) {
-              element.reference.delete();
+              element.reference.delete().then((value)
+              {
+                posts.remove(posts[index]);
+                postsIds.remove(postsIds[index]);
+
+                emit(DeletePostSuccessState());
+                MySnackBar.showSnackBar(context: context, message: 'Deleted');
+                emit(DeletePostSuccessState());
+              });
             });
           }).catchError((error)
           {
             emit(DeletePostErrorState());
           });
         }
-        posts.remove(posts[index]);
-        postsIds.remove(postsIds[index]);
-
-        emit(DeletePostSuccessState());
+      }).catchError((error)
+      {
+        emit(DeletePostErrorState());
       });
-
-      MySnackBar.showSnackBar(context: context, message: 'Deleted');
-    }).catchError((error)
-    {
-      emit(DeletePostErrorState());
     });
   }
 
@@ -291,24 +286,46 @@ class HomeCubit extends Cubit<HomeStates>
     required int index,
 })async
   {
-    FirebaseFirestore.instance
-        .collection('posts')
-        .doc(postsIds[index])
-        .update(
+    await getUsersIds().then((value)
+    {
+      FirebaseFirestore.instance
+          .collection('posts')
+          .doc(postsIds[index])
+          .update(
         {
           'text' : newText,
         },
-    ).then((value) {
-      MySnackBar.showSnackBar(
-          context: context,
-          message: 'Caption Updated',
-          color: Colors.green
-      );
-      emit(EditPostCaptionSuccessState());
-    }).catchError((error)
-    {
-      log(error.toString());
-      emit(EditPostCaptionErrorState());
+      ).then((value){
+        for(int i = 0; i <= usersIds.length ; i++)
+        {
+          FirebaseFirestore.instance
+              .collection('user')
+              .doc(usersIds[i])
+              .collection('savedPosts')
+              .where('postId',isEqualTo: postsIds[index])
+              .get()
+              .then((value)
+          {
+            value.docs.forEach((element) {
+              element.reference.update(
+                {
+                  'text' : newText,
+                },
+              ).then((value) {
+                emit(EditPostCaptionSuccessState());
+              });
+            });
+          }).catchError((error)
+          {
+            emit(DeletePostErrorState());
+          });
+        }
+
+      }).catchError((error)
+      {
+        log(error.toString());
+        emit(EditPostCaptionErrorState());
+      });
     });
   }
 
@@ -377,23 +394,23 @@ class HomeCubit extends Cubit<HomeStates>
     });
   }
 
-  void detectUserLike({
-    required String uId,
-    required int index,
-  })
-  {
-    for(int i = 0; i < postLikes.length; i++)
-      {
-        if(uId == postLikes[i])
-          {
-             disLike(index: index, uId: uId);
-             break;
-          }
-        else{
-           like(uId: uId, index: index);
-           break;
-        }
-      }
-  }
+  // void detectUserLike({
+  //   required String uId,
+  //   required int index,
+  // })
+  // {
+  //   for(int i = 0; i < postLikes.length; i++)
+  //     {
+  //       if(uId == postLikes[i])
+  //         {
+  //            disLike(index: index, uId: uId);
+  //            break;
+  //         }
+  //       else{
+  //          like(uId: uId, index: index);
+  //          break;
+  //       }
+  //     }
+  // }
 
 }

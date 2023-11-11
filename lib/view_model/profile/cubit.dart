@@ -117,10 +117,6 @@ class ProfileCubit extends Cubit<ProfileStates>
     });
   }
 
-
-
-
-
   bool darkMode = false;
   Future<void> changeAppTheme(bool value)async
   {

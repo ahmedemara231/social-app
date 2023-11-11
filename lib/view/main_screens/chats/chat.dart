@@ -22,8 +22,8 @@ class Chat extends StatelessWidget {
     required this.otherUserUId,
   });
 
-  var formKey = GlobalKey<FormState>();
-  var messageCont = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final messageCont = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ChatsCubit,ChatsStates>(
