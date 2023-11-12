@@ -86,7 +86,7 @@ class _LoginState extends State<Login> {
                           color: Colors.white,
                         ),
                       ),
-                    if(state != LoginLoadingState())
+                    if(state is! LoginLoadingState)
                       ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: HexColor('#00008B').withOpacity(.8),

@@ -75,5 +75,3 @@ class ForgotPassword extends StatelessWidget {
     );
   }
 }
-/*
-*  */

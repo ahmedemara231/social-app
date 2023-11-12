@@ -16,14 +16,12 @@ class AuthCubit extends Cubit<AuthStates>
 
   static AuthCubit getInstance(context) => BlocProvider.of(context);
 
-  bool regLoading = false;
   Future<void> register({
     required UserRegisterModel userRegisterModel,
     required context,
 })async
   {
-    // emit(RegisterLoadingState());
-    regLoading = true;
+    emit(RegisterLoadingState());
     try {
      await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: userRegisterModel.email,
@@ -47,7 +45,6 @@ class AuthCubit extends Cubit<AuthStates>
       ).then((value)async
       {
         await verifyEmail(context);
-        regLoading = false;
         emit(RegisterSuccessState());
       });
 

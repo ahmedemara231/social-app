@@ -24,10 +24,9 @@ class HomeCubit extends Cubit<HomeStates>
   List<Map<String,dynamic>> posts = [];
   List<String> postsIds = [];
 
-  bool postsLoading = false;
+
   Future<void> getAllPosts()async
   {
-    postsLoading = true;
     emit(HomeLoadingState());
 
     posts = [];
@@ -41,18 +40,15 @@ class HomeCubit extends Cubit<HomeStates>
         posts.add(element.data());
         postsIds.add(element.id);
       });
-      postsLoading = false;
       emit(GetPostsSuccessState());
     });
   }
 
-  bool writeCommentsLoading = false;
   Future<void> writeComment({
     required CommentModel commentModel,
 })async
   {
     emit(WriteCommentLoadingState());
-    writeCommentsLoading = true;
     await FirebaseFirestore.instance
         .collection('posts')
         .doc(postsIds[commentModel.index])
@@ -68,7 +64,6 @@ class HomeCubit extends Cubit<HomeStates>
     ).then((value)
     {
       emit(WriteCommentSuccessState());
-      writeCommentsLoading = false;
     }).catchError((error)
     {
       emit(WriteCommentErrorState());
@@ -77,13 +72,11 @@ class HomeCubit extends Cubit<HomeStates>
   }
 
   List<Map<String,dynamic>?> allComments = [];
-  bool getCommentsLoading = false;
   Future<void> getAllComments({
     required int index,
 })async
   {
     allComments = [];
-    getCommentsLoading = true;
 
     emit(GetAllCommentsLoadingState());
     await FirebaseFirestore.instance
@@ -97,7 +90,6 @@ class HomeCubit extends Cubit<HomeStates>
         allComments.add(element.data());
       });
       emit(GetAllCommentsSuccessState());
-      getCommentsLoading = false;
     }).catchError((error)
     {
       emit(GetAllCommentsErrorState());

@@ -279,9 +279,6 @@ class _HomeState extends State<Home> {
                                                       fontSize: 20,
                                                       fontWeight: FontWeight.w500,
                                                     ),
-                                                    if(HomeCubit.getInstance(context).getCommentsLoading == true)
-                                                      const Center(child: CircularProgressIndicator()),
-                                                    if(HomeCubit.getInstance(context).getCommentsLoading == false)
                                                       SizedBox(
                                                         width: double.infinity,
                                                         height: MediaQuery.of(context).size.height/1.4,
@@ -454,44 +451,39 @@ class _HomeState extends State<Home> {
                                                 future: FirebaseFirestore.instance.collection('user').doc(AuthCubit.getInstance(context).userModel!.uId).get(),
                                                 builder: (context, snapshot)
                                                 {
-                                                  if(HomeCubit.getInstance(context).writeCommentsLoading == true) {
-                                                    return const CircularProgressIndicator();
-                                                  }
-                                                  else{
-                                                    return ElevatedButton(
-                                                      style: ElevatedButton.styleFrom(
-                                                        backgroundColor: Colors.blue,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(20),
-                                                        ),
+                                                  return ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: Colors.blue,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(20),
                                                       ),
-                                                      onPressed: ()
+                                                    ),
+                                                    onPressed: ()
+                                                    {
+                                                      if(formKey.currentState!.validate())
                                                       {
-                                                        if(formKey.currentState!.validate())
+                                                        HomeCubit.getInstance(context).writeComment(
+                                                          commentModel: CommentModel(
+                                                              comment: commentCont.text,
+                                                              name: snapshot.data?.data()?['name'],
+                                                              time: Jiffy.now().yMMMdjm,
+                                                              uId: AuthCubit.getInstance(context).userModel!.uId,
+                                                              profileImage: snapshot.data?.data()?['profileImage'],
+                                                              index: index
+                                                          ),
+                                                        ).then((value)
                                                         {
-                                                          HomeCubit.getInstance(context).writeComment(
-                                                            commentModel: CommentModel(
-                                                                comment: commentCont.text,
-                                                                name: snapshot.data?.data()?['name'],
-                                                                time: Jiffy.now().yMMMdjm,
-                                                                uId: AuthCubit.getInstance(context).userModel!.uId,
-                                                                profileImage: snapshot.data?.data()?['profileImage'],
-                                                                index: index
-                                                            ),
-                                                          ).then((value)
-                                                          {
-                                                            commentCont.clear();
-                                                            Navigator.pop(context);
-                                                          });
-                                                        }
-                                                      },
-                                                      child: MyText(
-                                                        text: 'Comment',
-                                                        color: Colors.white,
-                                                        fontSize: 16,
-                                                      ),
-                                                    );
-                                                  }
+                                                          commentCont.clear();
+                                                          Navigator.pop(context);
+                                                        });
+                                                      }
+                                                    },
+                                                    child: MyText(
+                                                      text: 'Comment',
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
+                                                  );
                                                 },
                                               ),
                                             ],

@@ -136,7 +136,7 @@ class Register extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                      if(AuthCubit.getInstance(context).regLoading == false)
+                      if(state is! RegisterLoadingState)
                         ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: HexColor('#00008B').withOpacity(.8),
