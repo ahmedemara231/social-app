@@ -189,7 +189,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('user')
-        .doc(savePostModel.id)
+        .doc(savePostModel.uId)
         .collection('savedPosts')
         .doc(postsIds[savePostModel.index])
         .set(
@@ -198,17 +198,18 @@ class HomeCubit extends Cubit<HomeStates>
         'text' : savePostModel.text,
         'time' : savePostModel.time,
         'userName' : savePostModel.userName,
+        'uId' : savePostModel.posterId,
         'profileImage' : savePostModel.profileImage?? '',
         'photo' : savePostModel.photo?? '',
      },
    ).then((value)
     {
-      emit(SavePostSuccessState());
       MySnackBar.showSnackBar(
           context: context,
           message: 'Saved',
           color: Colors.green
       );
+      emit(SavePostSuccessState());
     }).catchError((error)
     {
       emit(SavePostErrorState());

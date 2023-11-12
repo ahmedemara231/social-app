@@ -101,14 +101,7 @@ class UpdateProfileCubit extends Cubit<UpdateProfileStates>
                   {
                     'userProfileImage': newProfileImageUrl
                   },
-                ).then((value)
-                {
-                  MySnackBar.showSnackBar(
-                      context: context,
-                      message: 'Updated successfully',
-                      color: Colors.green
-                  );
-                });
+                );
               });
             });
 
@@ -131,6 +124,39 @@ class UpdateProfileCubit extends Cubit<UpdateProfileStates>
                           'userProfileImage' : newProfileImageUrl,
                         },
                     );
+                  });
+                });
+              });
+            });
+
+            // update profileImage in Saved posts
+            FirebaseFirestore.instance
+            .collection('user')
+            .get()
+            .then((value)
+            {
+              value.docs.forEach((element) {
+                FirebaseFirestore.instance
+                    .collection('user')
+                    .doc(element.id)
+                    .collection('savedPosts')
+                    .where('uId',isEqualTo: uId)
+                    .get()
+                    .then((value)
+                {
+                  value.docs.forEach((element) {
+                    element.reference.update(
+                        {
+                          'profileImage' : newProfileImageUrl,
+                        },
+                    ).then((value)
+                    {
+                      MySnackBar.showSnackBar(
+                          context: context,
+                          message: 'Updated successfully',
+                          color: Colors.green
+                      );
+                    });
                   });
                 });
               });
@@ -192,24 +218,48 @@ class UpdateProfileCubit extends Cubit<UpdateProfileStates>
                         {
                           'name' : updateUserDataModel.name,
                         },
-                    ).then((value)
-                    {
-                      emit(UpdateUserDataSuccessState());
-                    });
+                    );
                   });
                 });
               });
             });
-            MySnackBar.showSnackBar(
-                context: context,
-                message: 'Updated successfully',
-                color: Colors.green
-            );
-            log('updated');
+
+            // update user data in saved posts
+            FirebaseFirestore.instance
+            .collection('user')
+            .get()
+            .then((value)
+            {
+              value.docs.forEach((element) {
+                FirebaseFirestore.instance
+                    .collection('user')
+                    .doc(element.id)
+                    .collection('savedPosts')
+                    .where('uId',isEqualTo: updateUserDataModel.uId)
+                    .get()
+                    .then((value)
+                {
+                  value.docs.forEach((element) {
+                    element.reference.update(
+                        {
+                          'userName' : updateUserDataModel.name,
+                        },
+                    );
+                  });
+                });
+              });
+            });
+
           });
         });
       });
-
+       MySnackBar.showSnackBar(
+           context: context,
+           message: 'Updated successfully',
+           color: Colors.green
+       );
+       log('updated');
+       emit(UpdateUserDataSuccessState());
     }).catchError((error)
     {
       log(error.toString());

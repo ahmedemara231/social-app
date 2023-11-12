@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,7 @@ import 'package:untitled10/modules/myText.dart';
 import 'package:untitled10/modules/textFormField.dart';
 import 'package:untitled10/view_model/auth_cubit/cubit.dart';
 import 'package:untitled10/view_model/auth_cubit/states.dart';
+import 'package:untitled10/view_model/home-cubit/cubit.dart';
 import '../../../view_model/update_profile/cubit.dart';
 import '../../../view_model/update_profile/states.dart';
 
@@ -56,6 +59,47 @@ class _EditProfileState extends State<EditProfile> {
                       text: 'Edit your profile',
                       fontWeight: FontWeight.w500,
                     ),
+                    actions: [
+                      TextButton(
+                          onPressed: () async{
+                            log('0 done');
+                        await FirebaseFirestore.instance
+                            .collection('user')
+                            .get()
+                            .then((value)
+                        {
+                          log('1 done');
+                          value.docs.forEach((element) {
+                            FirebaseFirestore.instance
+                                .collection('user')
+                                .doc('OIoXAfUzITfO0o4QyMP2H3zGKZC2')
+                                .collection('savedPosts')
+                                .where('uId',isEqualTo: 'OIoXAfUzITfO0o4QyMP2H3zGKZC2')
+                                .get()
+                                .then((value)
+                            {
+                              log('2 done');
+                              if(value.docs.isEmpty)
+                                {
+                                  log('empty');
+                                }
+                              else{
+                                value.docs.forEach((element) {
+                                  element.reference.update(
+                                    {
+                                      'profileImage' : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFLPhoVxkpiEqOqhgqiDMa1TmPv3Z1P-dJeQ&usqp=CAU',
+                                    },
+                                  ).then((value)
+                                  {
+                                    log('Done');
+                                  });
+                                });
+                              }
+                            });
+                          });
+                        });
+                      }, child: MyText(text: 'Test'))
+                    ],
                   ),
                   body: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -339,6 +383,7 @@ class _EditProfileState extends State<EditProfile> {
                                 null : () {
                                         UpdateProfileCubit.getInstance(context).updateUserData(
                                           updateUserDataModel: UpdateUserDataModel(
+
                                             name: editNameCont.text,
                                             bio: editBioCont.text,
                                             phone: editPhoneCont.text,

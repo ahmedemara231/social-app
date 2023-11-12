@@ -56,8 +56,8 @@ class _EditPostState extends State<EditPost> {
                       // Navigator.pop(context);
                     });
                   },
-                    obscureText: false,
-                    controller: editCaptionCont,
+                  obscureText: false,
+                  controller: editCaptionCont,
                   prefixIcon: const Icon(Icons.edit),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),

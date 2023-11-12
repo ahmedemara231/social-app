@@ -148,10 +148,11 @@ class _HomeState extends State<Home> {
                                     onTap: () async {
                                       await HomeCubit.getInstance(context).savePost(
                                         savePostModel: SavePostModel(
-                                          id: AuthCubit.getInstance(context).userModel!.uId,
                                           text: HomeCubit.getInstance(context).posts[index]['text'],
                                           time: HomeCubit.getInstance(context).posts[index]['time'],
                                           userName:  HomeCubit.getInstance(context).posts[index]['userName'],
+                                          posterId: HomeCubit.getInstance(context).posts[index]['uId'],
+                                          uId: AuthCubit.getInstance(context).userModel!.uId,
                                           profileImage: HomeCubit.getInstance(context).posts[index]['userProfileImage'],
                                           photo: HomeCubit.getInstance(context).posts[index]['photo'],
                                           index: index,

@@ -6,6 +6,7 @@ class UpdateUserDataModel
    String phone;
    String bio;
 
+
    UpdateUserDataModel({
      this.uId,
      required this.name,
