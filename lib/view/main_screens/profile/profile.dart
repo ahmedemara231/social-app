@@ -55,7 +55,7 @@ class _ProfileState extends State<Profile> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>  const Setting(),
+                                      builder: (context) =>   Setting(),
                                     ),
                                 );
                               },
