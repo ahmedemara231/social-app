@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:untitled10/modules/snackBar.dart';
 import 'package:untitled10/view_model/add_post/states.dart';
+import 'package:untitled10/view_model/home-cubit/cubit.dart';
 import '../../models/addPost_model.dart';
 
 class AddPostCubit extends Cubit<AddPostStates> {
@@ -47,6 +48,19 @@ class AddPostCubit extends Cubit<AddPostStates> {
         },
     ).then((value)
     {
+      Map<String,dynamic> post =
+      {
+        'text' : addPostModel.text,
+        'time' : addPostModel.time,
+        'uId' : addPostModel.uId,
+        'userProfileImage' : addPostModel.userProfileImage,
+        'userName' : addPostModel.userName,
+      };
+
+      HomeCubit.getInstance(context).addToPostsList(post,value.id);
+
+
+
       FirebaseFirestore.instance
           .collection('posts')
           .doc(value.id)

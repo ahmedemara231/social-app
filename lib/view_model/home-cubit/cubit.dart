@@ -24,6 +24,9 @@ class HomeCubit extends Cubit<HomeStates>
   List<Map<String,dynamic>> posts = [];
   List<String> postsIds = [];
 
+  List<Map<String,dynamic>> finalPostsList = [];
+  List<String> finalPostsIdsList = [];
+
 
   Future<void> getAllPosts()async
   {
@@ -40,8 +43,17 @@ class HomeCubit extends Cubit<HomeStates>
         posts.add(element.data());
         postsIds.add(element.id);
       });
+      finalPostsList = List.from(posts.reversed);
+      finalPostsIdsList = List.from(postsIds.reversed);
       emit(GetPostsSuccessState());
     });
+  }
+
+  void addToPostsList(Map<String,dynamic> post,String postId)
+  {
+    finalPostsList.insert(0, post);
+    finalPostsIdsList.insert(0, postId);
+    emit(GetPostsSuccessState());
   }
 
   Future<void> writeComment({
@@ -51,7 +63,7 @@ class HomeCubit extends Cubit<HomeStates>
     emit(WriteCommentLoadingState());
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsIds[commentModel.index])
+        .doc(finalPostsIdsList[commentModel.index])
         .collection('comments')
         .add(
         {
@@ -81,7 +93,7 @@ class HomeCubit extends Cubit<HomeStates>
     emit(GetAllCommentsLoadingState());
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsIds[index])
+        .doc(finalPostsIdsList[index])
         .collection('comments')
         .get()
         .then((value)
@@ -105,7 +117,7 @@ class HomeCubit extends Cubit<HomeStates>
     postCommentsIds = [];
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsIds[index])
+        .doc(finalPostsIdsList[index])
         .collection('comments')
         .get()
         .then((value)
@@ -129,7 +141,7 @@ class HomeCubit extends Cubit<HomeStates>
     log('$postIndex , $commentIndex');
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsIds[postIndex])
+        .doc(finalPostsIdsList[postIndex])
         .collection('comments')
         .doc(postCommentsIds[commentIndex])
         .delete()
@@ -183,10 +195,10 @@ class HomeCubit extends Cubit<HomeStates>
         .collection('user')
         .doc(savePostModel.uId)
         .collection('savedPosts')
-        .doc(postsIds[savePostModel.index])
+        .doc(finalPostsIdsList[savePostModel.index])
         .set(
       {
-        'postId' : postsIds[savePostModel.index],
+        'postId' : finalPostsIdsList[savePostModel.index],
         'text' : savePostModel.text,
         'time' : savePostModel.time,
         'userName' : savePostModel.userName,
@@ -236,7 +248,7 @@ class HomeCubit extends Cubit<HomeStates>
     {
        FirebaseFirestore.instance
           .collection('posts')
-          .doc(postsIds[index])
+          .doc(finalPostsIdsList[index])
           .delete()
           .then((value)async
       {
@@ -246,15 +258,15 @@ class HomeCubit extends Cubit<HomeStates>
               .collection('user')
               .doc(usersIds[i])
               .collection('savedPosts')
-              .where('postId',isEqualTo: postsIds[index])
+              .where('postId',isEqualTo: finalPostsIdsList[index])
               .get()
               .then((value)
           {
             value.docs.forEach((element) {
               element.reference.delete().then((value)
               {
-                posts.remove(posts[index]);
-                postsIds.remove(postsIds[index]);
+                finalPostsList.remove(finalPostsList[index]);
+                finalPostsIdsList.remove(finalPostsIdsList[index]);
 
                 emit(DeletePostSuccessState());
                 MySnackBar.showSnackBar(context: context, message: 'Deleted');
@@ -283,7 +295,7 @@ class HomeCubit extends Cubit<HomeStates>
     {
       FirebaseFirestore.instance
           .collection('posts')
-          .doc(postsIds[index])
+          .doc(finalPostsIdsList[index])
           .update(
         {
           'text' : newText,
@@ -295,7 +307,7 @@ class HomeCubit extends Cubit<HomeStates>
               .collection('user')
               .doc(usersIds[i])
               .collection('savedPosts')
-              .where('postId',isEqualTo: postsIds[index])
+              .where('postId',isEqualTo: finalPostsIdsList[index])
               .get()
               .then((value)
           {
@@ -330,7 +342,7 @@ class HomeCubit extends Cubit<HomeStates>
     postLikes = [];
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsIds[index])
+        .doc(finalPostsIdsList[index])
         .collection('likes')
         .get()
         .then((value)
@@ -349,7 +361,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsIds[index])
+        .doc(finalPostsIdsList[index])
         .collection('likes')
         .doc(uId)
         .set(
@@ -373,7 +385,7 @@ class HomeCubit extends Cubit<HomeStates>
   {
     await FirebaseFirestore.instance
         .collection('posts')
-        .doc(postsIds[index])
+        .doc(finalPostsIdsList[index])
         .collection('likes')
         .doc(uId)
         .delete()

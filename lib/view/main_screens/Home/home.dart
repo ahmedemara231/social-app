@@ -48,8 +48,8 @@ class _HomeState extends State<Home> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              body: HomeCubit.getInstance(context).posts.isNotEmpty &&
-                HomeCubit.getInstance(context).postsIds.isNotEmpty?
+              body: HomeCubit.getInstance(context).finalPostsList.isNotEmpty &&
+                HomeCubit.getInstance(context).finalPostsIdsList.isNotEmpty?
               ListView(
                 scrollDirection: Axis.vertical,
                 children: [
@@ -116,7 +116,7 @@ class _HomeState extends State<Home> {
                           children: [
                             ListTile(
                               leading: HomeCubit.getInstance(context)
-                                  .posts[index]
+                                  .finalPostsList[index]
                               ['userProfileImage'] ==
                                   ''
                                   ? const CircleAvatar(
@@ -125,36 +125,36 @@ class _HomeState extends State<Home> {
                                   : CircleAvatar(
                                   backgroundImage: NetworkImage(
                                       HomeCubit.getInstance(context)
-                                          .posts[index]
+                                          .finalPostsList[index]
                                       ['userProfileImage'])),
                               title: MyText(
                                 text: HomeCubit.getInstance(context)
-                                    .posts[index]['userName'],
+                                    .finalPostsList[index]['userName'],
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                               ),
-                              subtitle: MyText(
-                                text: HomeCubit.getInstance(context)
-                                    .posts[index]['time'],
-                                color: Colors.grey,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              // subtitle: MyText(
+                              //   text: HomeCubit.getInstance(context)
+                              //       .finalPostsList[index]['time'],
+                              //   color: Colors.grey,
+                              //   fontSize: 15,
+                              //   fontWeight: FontWeight.w500,
+                              // ),
                               trailing: PopupMenuButton(
                                 itemBuilder: (context) =>
                                 [
-                                  if(HomeCubit.getInstance(context).posts[index]['uId'] != AuthCubit.getInstance(context).userModel!.uId)
+                                  if(HomeCubit.getInstance(context).finalPostsList[index]['uId'] != AuthCubit.getInstance(context).userModel!.uId)
                                     PopupMenuItem(
                                     onTap: () async {
                                       await HomeCubit.getInstance(context).savePost(
                                         savePostModel: SavePostModel(
-                                          text: HomeCubit.getInstance(context).posts[index]['text'],
-                                          time: HomeCubit.getInstance(context).posts[index]['time'],
-                                          userName:  HomeCubit.getInstance(context).posts[index]['userName'],
-                                          posterId: HomeCubit.getInstance(context).posts[index]['uId'],
+                                          text: HomeCubit.getInstance(context).finalPostsList[index]['text'],
+                                          time: HomeCubit.getInstance(context).finalPostsList[index]['time'],
+                                          userName:  HomeCubit.getInstance(context).finalPostsList[index]['userName'],
+                                          posterId: HomeCubit.getInstance(context).finalPostsList[index]['uId'],
                                           uId: AuthCubit.getInstance(context).userModel!.uId,
-                                          profileImage: HomeCubit.getInstance(context).posts[index]['userProfileImage'],
-                                          photo: HomeCubit.getInstance(context).posts[index]['photo'],
+                                          profileImage: HomeCubit.getInstance(context).finalPostsList[index]['userProfileImage'],
+                                          photo: HomeCubit.getInstance(context).finalPostsList[index]['photo'],
                                           index: index,
                                         ),
                                         context: context,
@@ -165,7 +165,7 @@ class _HomeState extends State<Home> {
                                       fontSize: 16,
                                     ),
                                   ),
-                                  if(HomeCubit.getInstance(context).posts[index]['uId'] == AuthCubit.getInstance(context).userModel!.uId)
+                                  if(HomeCubit.getInstance(context).finalPostsList[index]['uId'] == AuthCubit.getInstance(context).userModel!.uId)
                                     PopupMenuItem(
                                       onTap: ()async
                                       {
@@ -180,7 +180,7 @@ class _HomeState extends State<Home> {
                                         fontSize: 16,
                                       ),
                                     ),
-                                  if(HomeCubit.getInstance(context).posts[index]['uId'] == AuthCubit.getInstance(context).userModel!.uId)
+                                  if(HomeCubit.getInstance(context).finalPostsList[index]['uId'] == AuthCubit.getInstance(context).userModel!.uId)
                                     PopupMenuItem(
                                       onTap: ()
                                       {
@@ -188,7 +188,7 @@ class _HomeState extends State<Home> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => EditPost(
-                                                post: HomeCubit.getInstance(context).posts[index],
+                                                post: HomeCubit.getInstance(context).finalPostsList[index],
                                                 index: index,
                                               ),
                                             ),
@@ -206,7 +206,7 @@ class _HomeState extends State<Home> {
                               padding: const EdgeInsets.all(8.0),
                               child: MyText(
                                 text: HomeCubit.getInstance(context)
-                                    .posts[index]['text'],
+                                    .finalPostsList[index]['text'],
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -214,16 +214,16 @@ class _HomeState extends State<Home> {
                             const SizedBox(
                               height: 12,
                             ),
-                            if (HomeCubit.getInstance(context).posts[index]
+                            if (HomeCubit.getInstance(context).finalPostsList[index]
                             ['photo'] == null)
                               MyText(text: ''),
-                            if (HomeCubit.getInstance(context).posts[index]
+                            if (HomeCubit.getInstance(context).finalPostsList[index]
                             ['photo'] != null)
                               ClipRRect(
                                   borderRadius: BorderRadius.circular(20),
                                   child: Image.network(
                                       HomeCubit.getInstance(context)
-                                          .posts[index]['photo'])),
+                                          .finalPostsList[index]['photo'])),
                             Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: Row(
@@ -231,7 +231,7 @@ class _HomeState extends State<Home> {
                                   InkWell(
                                     onTap: () {},
                                     child: StreamBuilder(
-                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).postsIds[index]).collection('likes').snapshots(),
+                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).finalPostsIdsList[index]).collection('likes').snapshots(),
                                       builder: (context, snapshot)
                                       {
                                         if(snapshot.hasData)
@@ -351,7 +351,7 @@ class _HomeState extends State<Home> {
                                       });
                                     },
                                     child: StreamBuilder(
-                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).postsIds[index]).collection('comments').snapshots(),
+                                      stream: FirebaseFirestore.instance.collection('posts').doc(HomeCubit.getInstance(context).finalPostsIdsList[index]).collection('comments').snapshots(),
                                       builder: (context, snapshot)
                                       {
                                         if(snapshot.hasData)
@@ -517,7 +517,7 @@ class _HomeState extends State<Home> {
                       separatorBuilder: (context, index) => const SizedBox(
                         height: 20,
                       ),
-                      itemCount: HomeCubit.getInstance(context).posts.length,
+                      itemCount: HomeCubit.getInstance(context).finalPostsList.length,
                     ),
                   ),
                 ]) :
